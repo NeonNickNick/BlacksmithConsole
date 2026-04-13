@@ -20,6 +20,10 @@ namespace Blacksmith.Backend.SkillPackages.Logic
         {
             InitializeSkills();
         }
+        public override DSL.SourceFile PassiveSkill(ISkillContext sc)
+        {
+            return new();
+        }
         private static bool IronCheck(ISkillContext sc) => true;
         private static DSL.SourceFile Iron(ISkillContext sc)
         {
@@ -34,7 +38,7 @@ namespace Blacksmith.Backend.SkillPackages.Logic
         private static DSL.SourceFile Stick(ISkillContext sc)
         {
             Pen pen = sf => sf
-                .UseResource(sc.Self, 0.5f, ResourceType.Iron)
+                .UseResource(0.5f, ResourceType.Iron)
                 .WriteAttack(1, AttackType.Physical);
             return DSL.Create(pen);
         }
@@ -46,7 +50,7 @@ namespace Blacksmith.Backend.SkillPackages.Logic
         private static DSL.SourceFile Drill(ISkillContext sc)
         {
             Pen pen = sf => sf
-                .UseResource(sc.Self, 1.5f, ResourceType.Iron)
+                .UseResource(1.5f, ResourceType.Iron)
                 .WriteAttack(3, AttackType.Physical);
             return DSL.Create(pen);
         }
@@ -58,7 +62,7 @@ namespace Blacksmith.Backend.SkillPackages.Logic
         private static DSL.SourceFile Slash(ISkillContext sc)
         {
             Pen pen = sf => sf
-                .UseResource(sc.Self, 2.5f, ResourceType.Iron)
+                .UseResource(2.5f, ResourceType.Iron)
                 .WriteAttack(5, AttackType.Physical);
             return DSL.Create(pen);
         }
@@ -70,7 +74,7 @@ namespace Blacksmith.Backend.SkillPackages.Logic
         private static DSL.SourceFile Shield(ISkillContext sc)
         {
             Pen pen = sf => sf
-                .UseResource(sc.Self, sc.Param * 0.5f, ResourceType.Iron)
+                .UseResource(sc.Param * 0.5f, ResourceType.Iron)
                 .WriteDefense(2 + sc.Param, new CommonReduction());
             return DSL.Create(pen);
         }
@@ -82,7 +86,7 @@ namespace Blacksmith.Backend.SkillPackages.Logic
         private static DSL.SourceFile ThornShield(ISkillContext sc)
         {
             Pen pen = sf => sf
-                .UseResource(sc.Self, 1 + sc.Param * 0.5f, ResourceType.Iron)
+                .UseResource(1 + sc.Param * 0.5f, ResourceType.Iron)
                 .WriteDefense(4 + sc.Param, new ThornReduction());
             return DSL.Create(pen);
         }
@@ -94,7 +98,7 @@ namespace Blacksmith.Backend.SkillPackages.Logic
         private static DSL.SourceFile Recovery(ISkillContext sc)
         {
             Pen pen = sf => sf
-                .UseResource(sc.Self, 1 + sc.Param, ResourceType.Iron)
+                .UseResource(1 + sc.Param, ResourceType.Iron)
                 .WriteRecovery(2 + 2 * sc.Param);
             return DSL.Create(pen);
         }
@@ -106,7 +110,7 @@ namespace Blacksmith.Backend.SkillPackages.Logic
         private static DSL.SourceFile Space(ISkillContext sc)
         {
             Pen pen = sf => sf
-                .UseResource(sc.Self, 3, ResourceType.Iron)
+                .UseResource(3, ResourceType.Iron)
                 .WriteResource(1, ResourceType.Space);
             return DSL.Create(pen);
         }
@@ -118,7 +122,7 @@ namespace Blacksmith.Backend.SkillPackages.Logic
         private static DSL.SourceFile Time(ISkillContext sc)
         {
             Pen pen = sf => sf
-                .UseResource(sc.Self, 3, ResourceType.Iron)
+                .UseResource(3, ResourceType.Iron)
                 .WriteResource(1, ResourceType.Time);
             return DSL.Create(pen);
         }
@@ -130,7 +134,7 @@ namespace Blacksmith.Backend.SkillPackages.Logic
         private static DSL.SourceFile Tear(ISkillContext sc)
         {
             Pen pen = sf => sf
-                .UseResource(sc.Self, 1, ResourceType.Space)
+                .UseResource(1, ResourceType.Space)
                 .WriteAttack(8, AttackType.Physical);
             return DSL.Create(pen);
         }
@@ -142,9 +146,28 @@ namespace Blacksmith.Backend.SkillPackages.Logic
         private static DSL.SourceFile Warlock(ISkillContext sc)
         {
             Pen pen = sf => sf
-                .UseResource(sc.Self, 1, ResourceType.Iron);
-            _professions.ForEach(p => sc.Self.Focus.Skill.RemoveSkill("common", p));
-            sc.Self.Focus.Skill.AddPackage(new Warlock());
+                .UseResource(1, ResourceType.Iron)
+                .WriteFree(source => 
+                { 
+                    _professions.ForEach(p => source.Focus.Skill.RemoveSkill("common", p));
+                    source.Focus.Skill.AddPackage(new Warlock());
+                });
+            return DSL.Create(pen);
+        }
+
+        private static bool CannonCheck(ISkillContext sc)
+        {
+            return sc.Self.Focus.Resource.Check(ResourceType.Iron, 4);
+        }
+        private static DSL.SourceFile Cannon(ISkillContext sc)
+        {
+            Pen pen = sf => sf
+                .UseResource(4, ResourceType.Iron)
+                .WriteFree(source =>
+                {
+                    _professions.ForEach(p => source.Focus.Skill.RemoveSkill("common", p));
+                    source.Focus.Skill.AddPackage(new Cannon());
+                });
             return DSL.Create(pen);
         }
 
@@ -155,8 +178,12 @@ namespace Blacksmith.Backend.SkillPackages.Logic
         private static DSL.SourceFile Driver(ISkillContext sc)
         {
             Pen pen = sf => sf
-                .UseResource(sc.Self, 3, ResourceType.Iron);
-            _professions.ForEach(p => sc.Self.Focus.Skill.RemoveSkill("common", p));
+                .UseResource(3, ResourceType.Iron)
+                .WriteFree(source =>
+                {
+                    _professions.ForEach(p => source.Focus.Skill.RemoveSkill("common", p));
+                    source.Focus.Skill.AddPackage(new Driver());
+                });
             return DSL.Create(pen);
         }
     }

@@ -70,5 +70,9 @@ namespace Blacksmith.Backend.JudgementLogic.Actor
             }
             throw new ArgumentException("Unreachable!");
         }
+        public List<DSL.SourceFile> GetPassiveSkill(ISkillContext sc)
+        {
+            return _packages.Select(p => p.SkillPackage.PassiveSkill(sc)).ToList();
+        }
     }
 }

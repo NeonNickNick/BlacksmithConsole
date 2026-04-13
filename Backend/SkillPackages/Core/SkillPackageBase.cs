@@ -11,6 +11,7 @@ namespace Blacksmith.Backend.SkillPackages.Core
         public List<string> AvailableSkillNames { get; }
         public IReadOnlyDictionary<string, Func<ISkillContext, bool>> SkillChecker { get; }
         public IReadOnlyDictionary<string, Func<ISkillContext, DSL.SourceFile>> SkillSourceFileGenerator { get; }
+        public abstract DSL.SourceFile PassiveSkill(ISkillContext sc);
     }
     public abstract class SkillPackageBase : ISkillPackage
     {
@@ -67,5 +68,6 @@ namespace Blacksmith.Backend.SkillPackages.Core
                 _skillSourceFileGenerator.Add(skillName, generatorDelegate);
             }
         }
+        public abstract DSL.SourceFile PassiveSkill(ISkillContext sc);
     }
 }

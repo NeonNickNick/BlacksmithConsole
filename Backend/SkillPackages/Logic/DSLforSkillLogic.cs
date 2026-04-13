@@ -17,7 +17,8 @@ namespace Blacksmith.Backend.SkillPackages.Logic
                 Defense,
                 Resource,
                 Effect,
-                Recovery
+                Recovery,
+                Free
             }
             private enum StructureType
             {
@@ -65,7 +66,11 @@ namespace Blacksmith.Backend.SkillPackages.Logic
                 }
                 return new() { Execute = result };
             }
-
+            public SourceFile WriteFree(Action<ActorSet> action)
+            {
+                _sentences.Add(new(action, SentenceType.Free, StructureType.Main));
+                return this;
+            }
             public SourceFile WriteAttack(
                 float power,
                 AttackType attackType,
@@ -92,16 +97,24 @@ namespace Blacksmith.Backend.SkillPackages.Logic
                         {
                             var defenses = main.Defense.Get();
                             resolution.RunStage(AttackStage.OnHitDefense, source, main);
-                            resolution.Power *= APFactor;
+                            
                             foreach (var temp in defenses)
                             {
+                                if (temp.Type != DefenseType.RealReduction)
+                                {
+                                    resolution.Power *= APFactor;
+                                }
                                 resolution.Power = temp.Work(source.Focus, main, (int)resolution.Power, resolution.Type);
+                                if (temp.Type != DefenseType.RealReduction)
+                                {
+                                    resolution.Power = MathF.Ceiling(resolution.Power / APFactor);
+                                }
                                 if (resolution.Power <= 0f)
                                 {
                                     return;
                                 }
                             }
-                            resolution.Power /= APFactor;
+                            
                         }
                         resolution.RunStage(AttackStage.OnHitBody, source, main);
                         main.Health.LoseHP((int)resolution.Power);
@@ -227,10 +240,9 @@ namespace Blacksmith.Backend.SkillPackages.Logic
                 }, SentenceType.Effect, StructureType.Rhetoric, _sentences[^1]));
                 return this;
             }
-            public SourceFile UseResource(ActorSet source, float need, ResourceType type, bool ifCommonOnly = false)
+            public SourceFile UseResource(float need, ResourceType type, bool ifCommonOnly = false)
             {
-                source.Focus.Resource.Use(type, need, ifCommonOnly);
-                return this;
+                return WriteFree(source => source.Focus.Resource.Use(type, need, ifCommonOnly));
             }
             public SourceFile LinkJudgeRule(string ruleKey)
             {

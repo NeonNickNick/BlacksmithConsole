@@ -87,13 +87,17 @@ namespace Blacksmith.Backend.JudgementLogic.Judgement
                 JudgeStage.OnAttackSwaping,
                 new(SwapAttacks)
             },
-            {
-                JudgeStage.OnEffectTaking_AfterTranscort,
-                new((player, enemy) => TakeEffects(EffectType.AfterTranscort, player, enemy))
+            { 
+                JudgeStage.OnApplyingEffect,
+                new(ApplyEffect)
             },
             {
-                JudgeStage.OnApplying,
-                new(Apply)
+                JudgeStage.OnEffectTaking_AfterTransport,
+                new((player, enemy) => TakeEffects(EffectType.AfterTransport, player, enemy))
+            },
+            {
+                JudgeStage.OnApplyingOthers,
+                new(ApplyOthers)
             },
             {
                 JudgeStage.OnUpdating,
@@ -191,12 +195,13 @@ namespace Blacksmith.Backend.JudgementLogic.Judgement
             playerResolutions.AddRange(enemyTemp);
             enemyResolutions.AddRange(playerTemp);
         }
-
-        private static void Apply(ActorSet player, ActorSet enemy)
+        private static void ApplyEffect(ActorSet player, ActorSet enemy)
         {
             player.Focus.TurnContext.ExecuteEffect(player);
             enemy.Focus.TurnContext.ExecuteEffect(enemy);
-
+        }
+        private static void ApplyOthers(ActorSet player, ActorSet enemy)
+        {
             player.Focus.TurnContext.ExecuteDefense(player);
             enemy.Focus.TurnContext.ExecuteDefense(enemy);
 

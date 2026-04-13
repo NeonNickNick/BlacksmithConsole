@@ -105,5 +105,9 @@ namespace Blacksmith.Backend.JudgementLogic.Actor
         {
             return _resources[type].Common;
         }
+        public float QueryGold(ResourceType type)
+        {
+            return _resources[type].Gold;
+        }
     }
 }

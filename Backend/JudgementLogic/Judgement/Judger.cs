@@ -25,14 +25,14 @@ namespace Blacksmith.Backend.JudgementLogic.Judgement
                 JudgeRuleManager.GetRule()(Player, Enemy);
             };
         }
-        private Intent Compile(DSL.SourceFile sourceFiles)
+        private List<Intent> Compile(List<DSL.SourceFile> sourceFiles)
         {
-            return sourceFiles.Compile(this);
+            return sourceFiles.Select(s => s.Compile(this)).ToList();
         }
-        public void Judge(DSL.SourceFile playerSfs, DSL.SourceFile enemySfs)
+        public void Judge(List<DSL.SourceFile> playerSfs, List<DSL.SourceFile> enemySfs)
         {
-            _playerIntents = new() { Compile(playerSfs) };
-            _enemyIntents = new() { Compile(enemySfs) };
+            _playerIntents = Compile(playerSfs);
+            _enemyIntents = Compile(enemySfs);
             _onJudge();
             JudgeRuleManager.Update();
         }

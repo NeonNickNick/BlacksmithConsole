@@ -8,24 +8,14 @@ namespace Blacksmith.FrontendBackendInterface
     {
         public SkillDeclareResult TryDeclare(string skillName, int param);
         public void Declare(string skillName, int param);
-    }
-    public interface IActorSetState
-    {
-        public int HP { get; }
-        public int MHP { get; }
-        public float Iron { get; }
-    }
-    public class TestActorSetState : IActorSetState
-    {
-        public ActorSet As { get; set; }
-        public int HP => As.Focus.Health.HP;
-        public int MHP => As.Focus.Health.MHP;
-        public float Iron => As.Focus.Resource.QueryCommon(ResourceType.Iron);
+        //以下为临时
+        public SkillDeclareResult ETryDeclare(string skillName, int param);
+        public void Declare(string skillName, int param, string esn, int ep);
     }
     public class GameContext
     {
         public ISkillChoose SkillChoose { get; set; }
-        public IActorSetState PlayerActorSetState { get; set; }
-        public IActorSetState EnemyActorSetState { get; set; }
+        public ActorSet Player { get; set; }
+        public ActorSet Enemy { get; set; }
     }
 }

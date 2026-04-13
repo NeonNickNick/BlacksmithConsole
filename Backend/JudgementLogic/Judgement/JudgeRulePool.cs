@@ -6,8 +6,9 @@ namespace Blacksmith.Backend.JudgementLogic.Judgement
         OnEffectSwaping,
         OnAttackCanceling,
         OnAttackSwaping,
-        OnEffectTaking_AfterTranscort,
-        OnApplying,
+        OnApplyingEffect,
+        OnEffectTaking_AfterTransport,
+        OnApplyingOthers,
         OnUpdating,
         OnEffectTaking_AfterResult
     }
