@@ -1,16 +1,13 @@
 namespace Blacksmith.Backend.JudgementLogic.Core
 {
-    public enum DefenseName
+    //从游戏规则上限定了有固定数目，不存在扩展
+    public enum DefenseType
     {
-        Default,
-        TemporaryArmor,
-        PermanentArmor,
-        TemporaryReduction,
-        PermanentReduction,
-        MagicShield,
-        MagicArmor,
-        SacrificeReduction,
-        scaceShield,
-        TimeShield,
+        RealReduction,
+        ThornReduction,
+        CommonReduction,
+        RockArmor,
+        ReadlArmor,
+        CommonArmor
     }
 }

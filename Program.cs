@@ -56,6 +56,11 @@ namespace Blacksmith.Program
                         try
                         {
                             param = int.Parse(slices[1]);
+                            if(param < 0)
+                            {
+                                Console.WriteLine($"\nsys::out >> Invalid param \"{slices[1]}\" is not positive!\n");
+                                continue;
+                            }
                         }
                         catch
                         {
@@ -77,7 +82,7 @@ namespace Blacksmith.Program
                     switch (result)
                     {
                         case SkillDeclareResult.Illegal:
-                            Console.WriteLine($"\nsys::out >> Cannot find skill \"{skillName}\"! UnLocked or non-existent!\n");
+                            Console.WriteLine($"\nsys::out >> Cannot find skill \"{skillName}\"! Locked or non-existent!\n");
                             continue;
                         case SkillDeclareResult.Rejected:
                             Console.WriteLine($"\nsys::out >> The conditions for using the skill \"{skillName}\" are not met!\n");

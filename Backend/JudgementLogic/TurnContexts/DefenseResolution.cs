@@ -6,8 +6,8 @@ namespace Blacksmith.Backend.JudgementLogic.TurnContexts
 {
     public class DefenseResolution : IResolution
     {
-        public int RemainingRounds { get; set; } = 0;
-        public DefenseBase Defense{ get; set; }
+        public int DelayRounds { get; set; } = 0;
+        public DefenseBase Defense { get; set; }
         public float Power { get; set; }
         public Action<ActorSet> Execute { get; set; }
         public DefenseResolution() { }

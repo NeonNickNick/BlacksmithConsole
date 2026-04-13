@@ -16,7 +16,8 @@ namespace Blacksmith.Backend.SkillPackages.Logic
                 Attack,
                 Defense,
                 Resource,
-                Effect
+                Effect,
+                Recovery
             }
             private enum StructureType
             {
@@ -28,34 +29,35 @@ namespace Blacksmith.Backend.SkillPackages.Logic
                 public Action<ActorSet> Structure { get; }
                 public SentenceType SentenceType { get; }
                 public StructureType StructureType { get; }
-                public Sentence(Action<ActorSet> structure, SentenceType sentenceType, StructureType structureType)
+                public Sentence BindSentence { get; }
+                public Sentence(Action<ActorSet> structure, SentenceType sentenceType, StructureType structureType, Sentence bindSentence = null)
                 {
                     Structure = structure;
                     SentenceType = sentenceType;
                     StructureType = structureType;
+                    BindSentence = bindSentence;
                 }
             }
             private List<Sentence> _sentences = new();
             private Stack<Sentence> _rhetoricCache = new();
             private List<string> _mutationsOnCompile = new();
-            public Intent Compile(Judger judger)
+            public Intent Compile(Judger judger = null)
             {
                 List<Sentence> sentences = new(_sentences);
-                /*
                 int n = _rhetoricCache.Count;
                 for (int i = 0; i < n; ++i)
                 {
-                    var mark = _rhetoricCache.Pop();
-                    foreach (var target in sentences.Where(s => s.StructureType == StructureType.Main && s.SentenceType == mark.SentenceType).ToList())
-                    {
-                        int index = sentences.IndexOf(target) + 1;
-                        sentences.Insert(index, new(mark.Structure, mark.SentenceType, StructureType.Rhetoric));
-                    }
-                }*/
+                    var rhetoric = _rhetoricCache.Pop();
+                    int index = sentences.IndexOf(rhetoric.BindSentence) + 1;
+                    sentences.Insert(index, new(rhetoric.Structure, rhetoric.SentenceType, StructureType.Rhetoric));
+                }
                 Action<ActorSet> result = null;
-                foreach (var key in _mutationsOnCompile)
+                if (judger != null)
                 {
-                    judger.JudgeRuleManager.AddJudgeRule(key);
+                    foreach (var key in _mutationsOnCompile)
+                    {
+                        judger.JudgeRuleManager.AddJudgeRule(key);
+                    }
                 }
                 foreach (var sentence in sentences)
                 {
@@ -67,13 +69,15 @@ namespace Blacksmith.Backend.SkillPackages.Logic
             public SourceFile WriteAttack(
                 float power,
                 AttackType attackType,
-                float APFactor = 1
+                float APFactor = 1,
+                int delayRounds = 0
             )
             {
                 _sentences.Add(new((ActorSet source) =>
                 {
                     var resolution = new AttackResolution
                     {
+                        DelayRounds = delayRounds,
                         Type = attackType,
                         Power = power
                     };
@@ -91,7 +95,7 @@ namespace Blacksmith.Backend.SkillPackages.Logic
                             resolution.Power *= APFactor;
                             foreach (var temp in defenses)
                             {
-                                resolution.Power = temp.Work(source.Focus, main, resolution.Power, resolution.Type);
+                                resolution.Power = temp.Work(source.Focus, main, (int)resolution.Power, resolution.Type);
                                 if (resolution.Power <= 0f)
                                 {
                                     return;
@@ -117,7 +121,7 @@ namespace Blacksmith.Backend.SkillPackages.Logic
                     }
                     var last = list[^1];
                     last.AddStage(AttackStage.OnHitDefense, action);
-                }, SentenceType.Attack, StructureType.Rhetoric));
+                }, SentenceType.Attack, StructureType.Rhetoric, _sentences[^1]));
                 return this;
             }
             public SourceFile OnHitBody(Action<ActorSet, Body, AttackResolution> action)
@@ -131,25 +135,34 @@ namespace Blacksmith.Backend.SkillPackages.Logic
                     }
                     var last = list[^1];
                     last.AddStage(AttackStage.OnHitBody, action);
-                }, SentenceType.Attack, StructureType.Rhetoric));
+                }, SentenceType.Attack, StructureType.Rhetoric, _sentences[^1]));
                 return this;
             }
-
+            public SourceFile WriteRecovery(int power)
+            {
+                _sentences.Add(new((ActorSet source) =>
+                {
+                    source.Focus.Health.GainHP(power);
+                }, SentenceType.Recovery, StructureType.Main));
+                return this;
+            }
             public SourceFile WriteDefense(
                 float power,
-                DefenseBase defense
+                DefenseBase defense,
+                int delayRounds = 0
             )
             {
                 _sentences.Add(new((ActorSet source) =>
                 {
                     var resolution = new DefenseResolution()
                     {
+                        DelayRounds = delayRounds,
                         Defense = defense,
                         Power = power
                     };
                     resolution.Execute = (ActorSet target) =>
                     {
-                        defense.Power = resolution.Power;
+                        defense.Power = (int)resolution.Power;
                         target.Focus.Defense.Add(resolution.Defense);
                     };
                     source.Focus.TurnContext.WriteResolution(resolution);
@@ -158,13 +171,15 @@ namespace Blacksmith.Backend.SkillPackages.Logic
             }
             public SourceFile WriteResource(
                 float power,
-                ResourceType type
+                ResourceType type,
+                int delayRounds = 0
             )
             {
                 _sentences.Add(new((ActorSet source) =>
                 {
                     var resolution = new ResourceResolution()
                     {
+                        DelayRounds = delayRounds,
                         Power = power,
                         Type = type
                     };
@@ -209,7 +224,7 @@ namespace Blacksmith.Backend.SkillPackages.Logic
                     }
                     var last = list[^1];
                     last.AddStage(EffectStage.OnSuccessfullyAdded, action);
-                }, SentenceType.Effect, StructureType.Rhetoric));
+                }, SentenceType.Effect, StructureType.Rhetoric, _sentences[^1]));
                 return this;
             }
             public SourceFile UseResource(ActorSet source, float need, ResourceType type, bool ifCommonOnly = false)

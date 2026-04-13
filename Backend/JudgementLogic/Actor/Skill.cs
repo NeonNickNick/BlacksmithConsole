@@ -1,4 +1,5 @@
 using Blacksmith.Backend.Backend.SkillPackages.Logic;
+using Blacksmith.Backend.SkillPackages.Core;
 using Blacksmith.Backend.SkillPackages.Logic;
 namespace Blacksmith.Backend.JudgementLogic.Actor
 {

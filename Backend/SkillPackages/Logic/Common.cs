@@ -2,66 +2,31 @@ using Blacksmith.Backend.Backend.SkillPackages.Logic;
 using Blacksmith.Backend.JudgementLogic.Actor;
 using Blacksmith.Backend.JudgementLogic.Core;
 using Blacksmith.Backend.JudgementLogic.Defenses;
+using Blacksmith.Backend.SkillPackages.Core;
 
 namespace Blacksmith.Backend.SkillPackages.Logic
 {
     using Pen = Func<DSLforSkillLogic.SourceFile, DSLforSkillLogic.SourceFile>;
     using DSL = DSLforSkillLogic;
-    public interface ISkillPackage
+    public class Common : SkillPackageBase
     {
-        public string Name { get; }
-        public List<string> AvailableSkillNames { get; }
-        public IReadOnlyDictionary<string, Func<ISkillContext, bool>> SkillChecker { get; }
-        public IReadOnlyDictionary<string, Func<ISkillContext, DSL.SourceFile>> SkillSourceFileGenerator { get; }
-    }
-    public class Common : ISkillPackage
-    {
-        public string Name => "common";
-        private static readonly string iron = "iron";
-        private static readonly string stick = "stick";
-        private static readonly string drill = "drill";
-        private static readonly string slash = "slash";
-        private static readonly string shield = "shield";
-        private List<string> _availableSkillNames = new List<string>()
+        private static readonly List<string> _professions = new()
         {
-            iron,
-            stick,
-            drill,
-            slash,
-            shield
+            "warlock",
+            "driver"
         };
-        public List<string> AvailableSkillNames
+        public override string Name => "common";
+        public Common()
         {
-            get => _availableSkillNames;
-            set => _availableSkillNames = value;
+            InitializeSkills();
         }
-        private Dictionary<string, Func<ISkillContext, bool>> _skillChecker = new Dictionary<string, Func<ISkillContext, bool>>()
-        {
-            { iron, IronCheck },
-            { stick, StickCheck},
-            { drill, DrillCheck},
-            { slash, SlashCheck},
-            { shield, ShieldCheck},
-        };
-        public IReadOnlyDictionary<string, Func<ISkillContext, bool>> SkillChecker => _skillChecker;
-        private Dictionary<string, Func<ISkillContext, DSL.SourceFile>> _skillSourceFileGenerator = new Dictionary<string, Func<ISkillContext, DSL.SourceFile>>()
-        {
-            { iron, Iron },
-            { stick, Stick},
-            { drill, Drill},
-            { slash, Slash},
-            { shield, Shield},
-        };
-        public IReadOnlyDictionary<string, Func<ISkillContext, DSL.SourceFile>> SkillSourceFileGenerator => _skillSourceFileGenerator;
-        private static bool IronCheck(ISkillContext sc)
-        {
-            return true;
-        }
+        private static bool IronCheck(ISkillContext sc) => true;
         private static DSL.SourceFile Iron(ISkillContext sc)
         {
             Pen pen = sf => sf.WriteResource(1, ResourceType.Iron);
             return DSL.Create(pen);
         }
+
         private static bool StickCheck(ISkillContext sc)
         {
             return sc.Self.Focus.Resource.Check(ResourceType.Iron, 0.5f);
@@ -73,6 +38,7 @@ namespace Blacksmith.Backend.SkillPackages.Logic
                 .WriteAttack(1, AttackType.Physical);
             return DSL.Create(pen);
         }
+
         private static bool DrillCheck(ISkillContext sc)
         {
             return sc.Self.Focus.Resource.Check(ResourceType.Iron, 1.5f);
@@ -80,10 +46,11 @@ namespace Blacksmith.Backend.SkillPackages.Logic
         private static DSL.SourceFile Drill(ISkillContext sc)
         {
             Pen pen = sf => sf
-                .UseResource(sc.Self, 0.5f, ResourceType.Iron)
+                .UseResource(sc.Self, 1.5f, ResourceType.Iron)
                 .WriteAttack(3, AttackType.Physical);
             return DSL.Create(pen);
         }
+
         private static bool SlashCheck(ISkillContext sc)
         {
             return sc.Self.Focus.Resource.Check(ResourceType.Iron, 2.5f);
@@ -91,10 +58,11 @@ namespace Blacksmith.Backend.SkillPackages.Logic
         private static DSL.SourceFile Slash(ISkillContext sc)
         {
             Pen pen = sf => sf
-                .UseResource(sc.Self, 0.5f, ResourceType.Iron)
+                .UseResource(sc.Self, 2.5f, ResourceType.Iron)
                 .WriteAttack(5, AttackType.Physical);
             return DSL.Create(pen);
         }
+
         private static bool ShieldCheck(ISkillContext sc)
         {
             return sc.Self.Focus.Resource.Check(ResourceType.Iron, sc.Param * 0.5f);
@@ -103,9 +71,93 @@ namespace Blacksmith.Backend.SkillPackages.Logic
         {
             Pen pen = sf => sf
                 .UseResource(sc.Self, sc.Param * 0.5f, ResourceType.Iron)
-                .WriteDefense(2 + sc.Param, new TemporaryArmor());
+                .WriteDefense(2 + sc.Param, new CommonReduction());
             return DSL.Create(pen);
         }
 
+        private static bool ThornShieldCheck(ISkillContext sc)
+        {
+            return sc.Self.Focus.Resource.Check(ResourceType.Iron, 1 + sc.Param * 0.5f);
+        }
+        private static DSL.SourceFile ThornShield(ISkillContext sc)
+        {
+            Pen pen = sf => sf
+                .UseResource(sc.Self, 1 + sc.Param * 0.5f, ResourceType.Iron)
+                .WriteDefense(4 + sc.Param, new ThornReduction());
+            return DSL.Create(pen);
+        }
+
+        private static bool RecoveryCheck(ISkillContext sc)
+        {
+            return sc.Self.Focus.Resource.Check(ResourceType.Iron, 1 + sc.Param);
+        }
+        private static DSL.SourceFile Recovery(ISkillContext sc)
+        {
+            Pen pen = sf => sf
+                .UseResource(sc.Self, 1 + sc.Param, ResourceType.Iron)
+                .WriteRecovery(2 + 2 * sc.Param);
+            return DSL.Create(pen);
+        }
+
+        private static bool SpaceCheck(ISkillContext sc)
+        {
+            return sc.Self.Focus.Resource.Check(ResourceType.Iron, 3);
+        }
+        private static DSL.SourceFile Space(ISkillContext sc)
+        {
+            Pen pen = sf => sf
+                .UseResource(sc.Self, 3, ResourceType.Iron)
+                .WriteResource(1, ResourceType.Space);
+            return DSL.Create(pen);
+        }
+
+        private static bool TimeCheck(ISkillContext sc)
+        {
+            return sc.Self.Focus.Resource.Check(ResourceType.Iron, 3);
+        }
+        private static DSL.SourceFile Time(ISkillContext sc)
+        {
+            Pen pen = sf => sf
+                .UseResource(sc.Self, 3, ResourceType.Iron)
+                .WriteResource(1, ResourceType.Time);
+            return DSL.Create(pen);
+        }
+
+        private static bool TearCheck(ISkillContext sc)
+        {
+            return sc.Self.Focus.Resource.Check(ResourceType.Space, 1f);
+        }
+        private static DSL.SourceFile Tear(ISkillContext sc)
+        {
+            Pen pen = sf => sf
+                .UseResource(sc.Self, 1, ResourceType.Space)
+                .WriteAttack(8, AttackType.Physical);
+            return DSL.Create(pen);
+        }
+
+        private static bool WarlockCheck(ISkillContext sc)
+        {
+            return sc.Self.Focus.Resource.Check(ResourceType.Iron, 1f);
+        }
+        private static DSL.SourceFile Warlock(ISkillContext sc)
+        {
+            Pen pen = sf => sf
+                .UseResource(sc.Self, 1, ResourceType.Iron);
+            _professions.ForEach(p => sc.Self.Focus.Skill.RemoveSkill("common", p));
+            sc.Self.Focus.Skill.AddPackage(new Warlock());
+            return DSL.Create(pen);
+        }
+
+        private static bool DriverCheck(ISkillContext sc)
+        {
+            return sc.Self.Focus.Resource.Check(ResourceType.Iron, 3);
+        }
+        private static DSL.SourceFile Driver(ISkillContext sc)
+        {
+            Pen pen = sf => sf
+                .UseResource(sc.Self, 3, ResourceType.Iron);
+            _professions.ForEach(p => sc.Self.Focus.Skill.RemoveSkill("common", p));
+            return DSL.Create(pen);
+        }
     }
 }

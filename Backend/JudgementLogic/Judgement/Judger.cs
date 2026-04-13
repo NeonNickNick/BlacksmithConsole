@@ -41,11 +41,11 @@ namespace Blacksmith.Backend.JudgementLogic.Judgement
         {
             foreach (var temp in _playerIntents)
             {
-                temp.Execute(Player);
+                temp.Execute?.Invoke(Player);
             }
             foreach (var temp in _enemyIntents)
             {
-                temp.Execute(Enemy);
+                temp.Execute?.Invoke(Enemy);
             }
         }
     }

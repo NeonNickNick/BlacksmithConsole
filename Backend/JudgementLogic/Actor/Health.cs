@@ -17,11 +17,6 @@ namespace Blacksmith.Backend.JudgementLogic.Actor
             MHP = mhp;
             OnHealthChanged?.Invoke(HP, MHP);
         }
-        public void Update()
-        {
-            HP = HP;
-            MHP = MHP;
-        }
         public void GainHP(int addition)
         {
             HP = (int)MathF.Min(MHP, HP + addition);

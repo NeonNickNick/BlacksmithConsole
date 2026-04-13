@@ -5,6 +5,5 @@ namespace Blacksmith.Backend.JudgementLogic.Core
         Physical,
         Magic,
         Real,
-        Unknown
     }
 }

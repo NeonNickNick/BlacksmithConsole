@@ -6,7 +6,7 @@ namespace Blacksmith.Backend.JudgementLogic.TurnContexts
 {
     public class ResourceResolution : IResolution
     {
-        public int RemainingRounds { get; set; } = 0;
+        public int DelayRounds { get; set; } = 0;
         public ResourceType Type { get; set; }
         public float Power { get; set; }
         public Action<ActorSet> Execute { get; set; }

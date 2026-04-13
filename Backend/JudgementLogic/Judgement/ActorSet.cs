@@ -13,7 +13,7 @@ namespace Blacksmith.Backend.JudgementLogic.Judgement
         public List<Body> ActorList { get; private set; }
         public ActorSet()
         {
-            Focus = new();
+            Focus = new(this);
             ActorList = new() { Focus };
         }
 

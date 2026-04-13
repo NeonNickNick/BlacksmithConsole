@@ -31,35 +31,43 @@ namespace Blacksmith.Backend.JudgementLogic.Actor
         }
         public void ExecuteDefense(ActorSet actorSet)
         {
-            foreach (var temp in DefenseResolutions)
+            var effectiveResolutions = DefenseResolutions.Where(d => d.DelayRounds == 0).ToList();
+            foreach (var temp in effectiveResolutions)
             {
                 temp.Execute(actorSet);
             }
-            DefenseResolutions.Clear();
+            DefenseResolutions.RemoveAll(d => effectiveResolutions.Contains(d));
+            DefenseResolutions.ForEach(d => d.DelayRounds--);
         }
         public void ExecuteResource(ActorSet actorSet)
         {
-            foreach (var temp in ResourceResolutions)
+            var effectiveResolutions = ResourceResolutions.Where(d => d.DelayRounds == 0).ToList();
+            foreach (var temp in effectiveResolutions)
             {
                 temp.Execute(actorSet);
             }
-            ResourceResolutions.Clear();
+            ResourceResolutions.RemoveAll(d => effectiveResolutions.Contains(d));
+            ResourceResolutions.ForEach(d => d.DelayRounds--);
         }
         public void ExecuteAttack(ActorSet actorSet)
         {
-            foreach (var temp in AttackResolutions)
+            var effectiveResolutions = AttackResolutions.Where(d => d.DelayRounds == 0).ToList();
+            foreach (var temp in effectiveResolutions)
             {
                 temp.Execute(actorSet);
             }
-            AttackResolutions.Clear();
+            AttackResolutions.RemoveAll(d => effectiveResolutions.Contains(d));
+            AttackResolutions.ForEach(d => d.DelayRounds--);
         }
         public void ExecuteEffect(ActorSet actorSet)
         {
-            foreach (var temp in EffectResolutions)
+            var effectiveResolutions = EffectResolutions.Where(d => d.DelayRounds == 0).ToList();
+            foreach (var temp in effectiveResolutions)
             {
                 temp.Execute(actorSet);
             }
-            EffectResolutions.Clear();
+            EffectResolutions.RemoveAll(d => effectiveResolutions.Contains(d));
+            EffectResolutions.ForEach(d => d.DelayRounds--);
         }
     }
 }

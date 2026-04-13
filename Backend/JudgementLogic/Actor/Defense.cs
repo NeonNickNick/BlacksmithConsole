@@ -13,9 +13,6 @@ namespace Blacksmith.Backend.JudgementLogic.Actor
             for (int i = n - 1; i >= 0; i--)
             {
                 _defenses[i].Update();
-                var power = _defenses[i].Power;
-                power = (int)power;
-                _defenses[i].Power = power;
                 if (_defenses[i].IsDead)
                 {
                     _defenses.RemoveAt(i);
@@ -29,6 +26,7 @@ namespace Blacksmith.Backend.JudgementLogic.Actor
                 return;
             }
             _defenses.Add(addition);
+            _defenses.OrderBy(d => d.Type);
         }
         private bool Merge(DefenseBase addition)
         {
@@ -36,7 +34,7 @@ namespace Blacksmith.Backend.JudgementLogic.Actor
             {
                 return false;
             }
-            DefenseBase firstMatch = _defenses.Find(d => d.Name == addition.Name);
+            DefenseBase firstMatch = _defenses.Find(d => d.Type == addition.Type);
             if (firstMatch == null)
             {
                 return false;

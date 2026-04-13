@@ -12,9 +12,8 @@ namespace Blacksmith.Backend.JudgementLogic.TurnContexts
     }
     public class AttackResolution : IResolution
     {
-        public int RemainingRounds { get; set; } = 0;
+        public int DelayRounds { get; set; } = 0;
         public AttackType Type { get; set; }
-        public AttackTargetType TargetType { get; set; } = AttackTargetType.Enemy;
         public float Power { get; set; }
         public Action<ActorSet> Execute { get; set; }
 
@@ -24,7 +23,6 @@ namespace Blacksmith.Backend.JudgementLogic.TurnContexts
         {
             Type = original.Type;
             Power = original.Power;
-            TargetType = original.TargetType;
             Execute = original.Execute;
             _stages = original._stages;
         }

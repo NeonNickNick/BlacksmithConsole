@@ -11,7 +11,7 @@ namespace Blacksmith.Backend.JudgementLogic.TurnContexts
     }
     public class EffectResolution : IResolution
     {
-        public int RemainingRounds { get; set; } = 0;
+        public int DelayRounds { get; set; } = 0;
         public readonly EffectType Type;
         public List<EffectTag> Tags { get; set; }
         public EffectTargetType TargetType { get; set; }
