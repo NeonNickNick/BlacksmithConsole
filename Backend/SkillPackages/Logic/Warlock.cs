@@ -83,6 +83,7 @@ namespace Blacksmith.Backend.SkillPackages.Logic
         private static DSL.SourceFile Alchemy(ISkillContext sc)
         {
             Pen pen = sf => sf
+                .UseResource(2, ResourceType.Iron)
                 .WriteFree(source =>
                 {
                     source.Focus.Skill.AddSkill("warlock", "midastouch");
@@ -99,6 +100,7 @@ namespace Blacksmith.Backend.SkillPackages.Logic
         private static DSL.SourceFile MidasTouch(ISkillContext sc)
         {
             Pen pen = sf => sf
+                .UseResource(1, ResourceType.Iron, true)
                 .WriteResource(5, ResourceType.GoldIron);
             return DSL.Create(pen);
         }
