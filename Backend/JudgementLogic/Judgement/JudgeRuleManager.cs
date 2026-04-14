@@ -15,14 +15,14 @@ namespace Blacksmith.Backend.JudgementLogic.Judgement
                 After
             }
             private readonly Action<ActorSet, ActorSet> _baseRule;
-            private Action<ActorSet, ActorSet> _overrideRule; // 非对合
+            private Action<ActorSet, ActorSet>? _overrideRule; // 非对合
             public readonly List<Action<ActorSet, ActorSet>> _modifiersBefore = new();
             public readonly List<Action<ActorSet, ActorSet>> _modifiersAfter = new();
             public StageRuleContainer(Action<ActorSet, ActorSet> baseRule)
             {
                 _baseRule = baseRule;
             }
-            public void SetOverride(Action<ActorSet, ActorSet> rule)
+            public void SetOverride(Action<ActorSet, ActorSet>? rule)
             {
                 _overrideRule = rule;
             }
@@ -224,7 +224,7 @@ namespace Blacksmith.Backend.JudgementLogic.Judgement
         #endregion
         public Action<ActorSet, ActorSet> GetRule()
         {
-            Action<ActorSet, ActorSet> result = null;
+            Action<ActorSet, ActorSet> result = (a, b) => { };
 
             foreach (var stage in _ruleContainers.OrderBy(k => k.Key))
             {
@@ -235,17 +235,17 @@ namespace Blacksmith.Backend.JudgementLogic.Judgement
         }
         public class ActiveJudgeRuleMark
         {
-            public string MutationName;
+            public string MutationName = "";
             public int RemainingRounds;
             public JudgeStage Stage;
             public RuleType RuleType;
             public ModifierOrder ModifierOrder;
-            public Action<ActorSet, ActorSet> RuleRef;
+            public Action<ActorSet, ActorSet>? RuleRef;
         }
         private List<ActiveJudgeRuleMark> _activeJudgeRuleMarks = new();
-        public void AddJudgeRule(string mutationName)
+        public void AddJudgeRule(ActorSet source, string mutationName)
         {
-            List<Mutation> mutations = JudgeRulePool.Query(mutationName);
+            List<Mutation> mutations = JudgeRulePool.Query(source, mutationName);
             foreach (var mutation in mutations)
             {
                 ActiveJudgeRuleMark mark = new()
@@ -279,11 +279,12 @@ namespace Blacksmith.Backend.JudgementLogic.Judgement
         }
         public void Update()
         {
+            
             foreach(var mark in _activeJudgeRuleMarks)
             {
+                mark.RemainingRounds--;
                 if(mark.RemainingRounds > 0)
                 {
-                    mark.RemainingRounds--;
                     continue;
                 }
                 if (mark.RuleType == RuleType.Override)
@@ -292,7 +293,7 @@ namespace Blacksmith.Backend.JudgementLogic.Judgement
                 }
                 else
                 {
-                    _ruleContainers[mark.Stage].RemoveModifier(mark.RuleRef, mark.ModifierOrder);
+                    _ruleContainers[mark.Stage].RemoveModifier(mark.RuleRef!, mark.ModifierOrder);
                 }
             }
             _activeJudgeRuleMarks.RemoveAll(a => a.RemainingRounds <= 0);

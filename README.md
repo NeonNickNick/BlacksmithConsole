@@ -18,6 +18,7 @@
 | 时间 | time | :--- |
 | 空间 | space | :--- |
 | 撕裂 | tear | :--- |
+| 转移 | reflect | Unsafe |
 | 术士 | warlock | :--- |
 | 炮 | cannon | :--- |
 | 驱动器 | driver | :--- |

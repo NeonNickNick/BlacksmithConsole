@@ -1,6 +1,5 @@
 using Blacksmith.Backend.JudgementLogic.Actor;
 using Blacksmith.Backend.JudgementLogic.Core;
-using Blacksmith.Backend.JudgementLogic.TurnContexts;
 using Blacksmith.Backend.SkillPackages.Logic;
 namespace Blacksmith.Backend.JudgementLogic.Defenses
 {
@@ -25,7 +24,7 @@ namespace Blacksmith.Backend.JudgementLogic.Defenses
             int res = (int)MathF.Max(0, attack - Power);
             if(type == AttackType.Physical)
             {
-                DSL.Create(sf => sf.WriteAttack(res / 2, AttackType.Magic, delayRounds: 1)).Compile().Execute(owner.Community);
+                DSL.Create(owner.Community, sf => sf.WriteAttack(res / 2, AttackType.Magic, delayRounds: 1)).Compile().Execute(owner.Community);
             }
             return res;
         }

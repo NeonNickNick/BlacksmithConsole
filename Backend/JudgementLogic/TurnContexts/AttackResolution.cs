@@ -15,7 +15,7 @@ namespace Blacksmith.Backend.JudgementLogic.TurnContexts
         public int DelayRounds { get; set; } = 0;
         public AttackType Type { get; set; }
         public float Power { get; set; }
-        public Action<ActorSet> Execute { get; set; }
+        public Action<ActorSet> Execute { get; set; } = (a) => { };
 
         private readonly Dictionary<AttackStage, List<Action<ActorSet, Body, AttackResolution>>> _stages = new();
         public AttackResolution() { }

@@ -30,8 +30,8 @@ namespace Blacksmith.Backend.SkillPackages.Logic
                 public Action<ActorSet> Structure { get; }
                 public SentenceType SentenceType { get; }
                 public StructureType StructureType { get; }
-                public Sentence BindSentence { get; }
-                public Sentence(Action<ActorSet> structure, SentenceType sentenceType, StructureType structureType, Sentence bindSentence = null)
+                public Sentence? BindSentence { get; }
+                public Sentence(Action<ActorSet> structure, SentenceType sentenceType, StructureType structureType, Sentence? bindSentence = null)
                 {
                     Structure = structure;
                     SentenceType = sentenceType;
@@ -39,25 +39,30 @@ namespace Blacksmith.Backend.SkillPackages.Logic
                     BindSentence = bindSentence;
                 }
             }
+            private readonly ActorSet _owner; 
             private List<Sentence> _sentences = new();
             private Stack<Sentence> _rhetoricCache = new();
             private List<string> _mutationsOnCompile = new();
-            public Intent Compile(Judger judger = null)
+            public SourceFile(ActorSet owner)
+            {
+                _owner = owner;
+            }
+            public Intent Compile(Judger? judger = null)
             {
                 List<Sentence> sentences = new(_sentences);
                 int n = _rhetoricCache.Count;
                 for (int i = 0; i < n; ++i)
                 {
                     var rhetoric = _rhetoricCache.Pop();
-                    int index = sentences.IndexOf(rhetoric.BindSentence) + 1;
+                    int index = sentences.IndexOf(rhetoric.BindSentence!) + 1;
                     sentences.Insert(index, new(rhetoric.Structure, rhetoric.SentenceType, StructureType.Rhetoric));
                 }
-                Action<ActorSet> result = null;
+                Action<ActorSet> result = (a) => { };
                 if (judger != null)
                 {
                     foreach (var key in _mutationsOnCompile)
                     {
-                        judger.JudgeRuleManager.AddJudgeRule(key);
+                        judger.JudgeRuleManager.AddJudgeRule(_owner, key);
                     }
                 }
                 foreach (var sentence in sentences)
@@ -268,9 +273,9 @@ namespace Blacksmith.Backend.SkillPackages.Logic
             effect.Execute = (Body body) => effectAction(source, body, effect);
             main.Effect.Add(effect);
         }
-        public static SourceFile Create(Pen Pen)
+        public static SourceFile Create(ActorSet source, Pen Pen)
         {
-            var sourceFile = new SourceFile();
+            var sourceFile = new SourceFile(source);
             return Pen(sourceFile);
         }
     }

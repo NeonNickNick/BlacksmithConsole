@@ -20,7 +20,7 @@ namespace Blacksmith.Backend.SkillPackages.Logic
             Pen pen = sf => sf
                 .WriteDefense(1, new RealReduction())
                 .WriteDefense((int)MathF.Min(5, sc.Self.Focus.Resource.QueryCommon(ResourceType.Time) * 2), new RealReduction());
-            return DSL.Create(pen);
+            return DSL.Create(sc.Self, pen);
         }
         private static bool SpaceAttackCheck(ISkillContext sc)
         {
@@ -31,7 +31,7 @@ namespace Blacksmith.Backend.SkillPackages.Logic
             Pen pen = sf => sf
                 .UseResource(1, ResourceType.Space)
                 .WriteAttack(11, AttackType.Physical);
-            return DSL.Create(pen);
+            return DSL.Create(sc.Self, pen);
         }
 
         private static bool Space2TimeCheck(ISkillContext sc)
@@ -44,7 +44,7 @@ namespace Blacksmith.Backend.SkillPackages.Logic
                 .UseResource(1, ResourceType.Space)
                 .WriteResource(1, ResourceType.Time)
                 .WriteDefense(3, new RealReduction());
-            return DSL.Create(pen);
+            return DSL.Create(sc.Self, pen);
         }
 
         private static bool Time2SpaceCheck(ISkillContext sc)
@@ -57,7 +57,7 @@ namespace Blacksmith.Backend.SkillPackages.Logic
                 .UseResource(1, ResourceType.Time)
                 .WriteResource(1, ResourceType.Space)
                 .WriteDefense(3, new RealReduction());
-            return DSL.Create(pen);
+            return DSL.Create(sc.Self, pen);
         }
 
         private static bool SpaceBarrierCheck(ISkillContext sc)
@@ -69,7 +69,7 @@ namespace Blacksmith.Backend.SkillPackages.Logic
             Pen pen = sf => sf
                 .UseResource(sc.Param, ResourceType.Iron)
                 .WriteDefense(5.5f * sc.Param - 0.5f * sc.Param * sc.Param, new RealReduction());
-            return DSL.Create(pen);
+            return DSL.Create(sc.Self, pen);
         }
     }
 }

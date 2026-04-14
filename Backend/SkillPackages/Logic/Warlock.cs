@@ -20,7 +20,7 @@ namespace Blacksmith.Backend.SkillPackages.Logic
         }
         public override DSL.SourceFile PassiveSkill(ISkillContext sc)
         {
-            return new();
+            return new(sc.Self);
         }
         private static bool MagicCheck(ISkillContext sc)
         {
@@ -31,7 +31,7 @@ namespace Blacksmith.Backend.SkillPackages.Logic
             Pen pen = sf => sf
                 .UseResource(1, ResourceType.Iron)
                 .WriteResource(1, ResourceType.Magic);
-            return DSL.Create(pen);
+            return DSL.Create(sc.Self, pen);
         }
 
         private static bool MagicAttackCheck(ISkillContext sc)
@@ -44,7 +44,7 @@ namespace Blacksmith.Backend.SkillPackages.Logic
                 .WriteAttack(2 * sc.Param, AttackType.Physical, delayRounds: 0)
                 .WriteAttack(2 * sc.Param, AttackType.Physical, delayRounds: 1)
                 .WriteAttack(2 * sc.Param, AttackType.Physical, delayRounds: 2);
-            return DSL.Create(pen);
+            return DSL.Create(sc.Self, pen);
         }
 
         private static bool MuteCheck(ISkillContext sc) => true;
@@ -56,7 +56,7 @@ namespace Blacksmith.Backend.SkillPackages.Logic
                {
                    main.TurnContext.ResourceResolutions.RemoveAll(r => r.Type == ResourceType.Space || r.Type == ResourceType.Time);
                });
-            return DSL.Create(pen);
+            return DSL.Create(sc.Self, pen);
         }
 
         private static bool SacrificeCheck(ISkillContext sc)
@@ -73,7 +73,7 @@ namespace Blacksmith.Backend.SkillPackages.Logic
                 })
                 .WriteDefense(7, new RealReduction())
                 .WriteResource(2, ResourceType.Iron);
-            return DSL.Create(pen);
+            return DSL.Create(sc.Self, pen);
         }
 
         private static bool AlchemyCheck(ISkillContext sc)
@@ -89,7 +89,7 @@ namespace Blacksmith.Backend.SkillPackages.Logic
                     source.Focus.Skill.AddSkill("warlock", "midastouch");
                     source.Focus.Skill.RemoveSkill("warlock", "alchemy");
                 });
-            return DSL.Create(pen);
+            return DSL.Create(sc.Self, pen);
         }
 
         private static bool MidasTouchCheck(ISkillContext sc)
@@ -102,7 +102,7 @@ namespace Blacksmith.Backend.SkillPackages.Logic
             Pen pen = sf => sf
                 .UseResource(1, ResourceType.Iron, true)
                 .WriteResource(5, ResourceType.GoldIron);
-            return DSL.Create(pen);
+            return DSL.Create(sc.Self, pen);
         }
     }
 }

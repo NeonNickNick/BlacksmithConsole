@@ -22,13 +22,13 @@ namespace Blacksmith.Backend.SkillPackages.Logic
         }
         public override DSL.SourceFile PassiveSkill(ISkillContext sc)
         {
-            return new();
+            return new(sc.Self);
         }
         private static bool IronCheck(ISkillContext sc) => true;
         private static DSL.SourceFile Iron(ISkillContext sc)
         {
             Pen pen = sf => sf.WriteResource(1, ResourceType.Iron);
-            return DSL.Create(pen);
+            return DSL.Create(sc.Self, pen);
         }
 
         private static bool StickCheck(ISkillContext sc)
@@ -40,7 +40,7 @@ namespace Blacksmith.Backend.SkillPackages.Logic
             Pen pen = sf => sf
                 .UseResource(0.5f, ResourceType.Iron)
                 .WriteAttack(1, AttackType.Physical);
-            return DSL.Create(pen);
+            return DSL.Create(sc.Self, pen);
         }
 
         private static bool DrillCheck(ISkillContext sc)
@@ -52,7 +52,7 @@ namespace Blacksmith.Backend.SkillPackages.Logic
             Pen pen = sf => sf
                 .UseResource(1.5f, ResourceType.Iron)
                 .WriteAttack(3, AttackType.Physical);
-            return DSL.Create(pen);
+            return DSL.Create(sc.Self, pen);
         }
 
         private static bool SlashCheck(ISkillContext sc)
@@ -64,7 +64,7 @@ namespace Blacksmith.Backend.SkillPackages.Logic
             Pen pen = sf => sf
                 .UseResource(2.5f, ResourceType.Iron)
                 .WriteAttack(5, AttackType.Physical);
-            return DSL.Create(pen);
+            return DSL.Create(sc.Self, pen);
         }
 
         private static bool ShieldCheck(ISkillContext sc)
@@ -76,7 +76,7 @@ namespace Blacksmith.Backend.SkillPackages.Logic
             Pen pen = sf => sf
                 .UseResource(sc.Param * 0.5f, ResourceType.Iron)
                 .WriteDefense(2 + sc.Param, new CommonReduction());
-            return DSL.Create(pen);
+            return DSL.Create(sc.Self, pen);
         }
 
         private static bool ThornShieldCheck(ISkillContext sc)
@@ -88,7 +88,7 @@ namespace Blacksmith.Backend.SkillPackages.Logic
             Pen pen = sf => sf
                 .UseResource(1 + sc.Param * 0.5f, ResourceType.Iron)
                 .WriteDefense(4 + sc.Param, new ThornReduction());
-            return DSL.Create(pen);
+            return DSL.Create(sc.Self, pen);
         }
 
         private static bool RecoveryCheck(ISkillContext sc)
@@ -100,7 +100,7 @@ namespace Blacksmith.Backend.SkillPackages.Logic
             Pen pen = sf => sf
                 .UseResource(1 + sc.Param, ResourceType.Iron)
                 .WriteRecovery(2 + 2 * sc.Param);
-            return DSL.Create(pen);
+            return DSL.Create(sc.Self, pen);
         }
 
         private static bool SpaceCheck(ISkillContext sc)
@@ -112,7 +112,7 @@ namespace Blacksmith.Backend.SkillPackages.Logic
             Pen pen = sf => sf
                 .UseResource(3, ResourceType.Iron)
                 .WriteResource(1, ResourceType.Space);
-            return DSL.Create(pen);
+            return DSL.Create(sc.Self, pen);
         }
 
         private static bool TimeCheck(ISkillContext sc)
@@ -124,7 +124,7 @@ namespace Blacksmith.Backend.SkillPackages.Logic
             Pen pen = sf => sf
                 .UseResource(3, ResourceType.Iron)
                 .WriteResource(1, ResourceType.Time);
-            return DSL.Create(pen);
+            return DSL.Create(sc.Self, pen);
         }
 
         private static bool TearCheck(ISkillContext sc)
@@ -136,7 +136,18 @@ namespace Blacksmith.Backend.SkillPackages.Logic
             Pen pen = sf => sf
                 .UseResource(1, ResourceType.Space)
                 .WriteAttack(8, AttackType.Physical);
-            return DSL.Create(pen);
+            return DSL.Create(sc.Self, pen);
+        }
+        private static bool ReflectCheck(ISkillContext sc)
+        {
+            return sc.Self.Focus.Resource.Check(ResourceType.Space, 2f);
+        }
+        private static DSL.SourceFile Reflect(ISkillContext sc)
+        {
+            Pen pen = sf => sf
+                .UseResource(2, ResourceType.Space)
+                .LinkJudgeRule("reflect");
+            return DSL.Create(sc.Self, pen);
         }
 
         private static bool WarlockCheck(ISkillContext sc)
@@ -152,7 +163,7 @@ namespace Blacksmith.Backend.SkillPackages.Logic
                     _professions.ForEach(p => source.Focus.Skill.RemoveSkill("common", p));
                     source.Focus.Skill.AddPackage(new Warlock());
                 });
-            return DSL.Create(pen);
+            return DSL.Create(sc.Self, pen);
         }
 
         private static bool CannonCheck(ISkillContext sc)
@@ -168,7 +179,7 @@ namespace Blacksmith.Backend.SkillPackages.Logic
                     _professions.ForEach(p => source.Focus.Skill.RemoveSkill("common", p));
                     source.Focus.Skill.AddPackage(new Cannon());
                 });
-            return DSL.Create(pen);
+            return DSL.Create(sc.Self, pen);
         }
 
         private static bool DriverCheck(ISkillContext sc)
@@ -184,7 +195,7 @@ namespace Blacksmith.Backend.SkillPackages.Logic
                     _professions.ForEach(p => source.Focus.Skill.RemoveSkill("common", p));
                     source.Focus.Skill.AddPackage(new Driver());
                 });
-            return DSL.Create(pen);
+            return DSL.Create(sc.Self, pen);
         }
     }
 }
