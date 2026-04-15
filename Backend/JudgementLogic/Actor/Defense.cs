@@ -4,7 +4,7 @@ namespace Blacksmith.Backend.JudgementLogic.Actor
 {
     public class Defense
     {
-        private readonly List<DefenseBase> _defenses = new();
+        private List<DefenseBase> _defenses = new();
         public List<DefenseBase> Defenses => _defenses;
 
         public void Update()
@@ -26,7 +26,7 @@ namespace Blacksmith.Backend.JudgementLogic.Actor
                 return;
             }
             _defenses.Add(addition);
-            _defenses.OrderBy(d => d.Type);
+            _defenses = _defenses.OrderBy(d => d.Type).ToList();
         }
         private bool Merge(DefenseBase addition)
         {

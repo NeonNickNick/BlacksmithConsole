@@ -13,7 +13,7 @@ namespace Blacksmith.Backend.JudgementLogic.Actor
         {
             _effects.AddRange(effectEntities);
         }
-        public void Execute(EffectType type, Body body, bool ifExtra = false)
+        public void Execute(EffectType type, Body body)
         {
             List<EffectEntity> tempList = _effects.Where(e => e.Type == type).ToList();
             foreach (var temp in tempList)
@@ -26,10 +26,6 @@ namespace Blacksmith.Backend.JudgementLogic.Actor
                 if (temp.RemainingTimes > 0)
                 {
                     temp.Execute(body);
-                    if (ifExtra)
-                    {
-                        continue;
-                    }
                     temp.RemainingTimes--;
                 }
             }

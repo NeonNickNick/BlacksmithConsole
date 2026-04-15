@@ -4,7 +4,6 @@ namespace Blacksmith.Backend.JudgementLogic.Actor
     {
         public int HP { get; private set; }
         public int MHP { get; private set; }
-        public int Percent => HP / MHP;
         public event Action<int, int> OnHealthChanged;
         public Health(int hp, int mhp)
         {
