@@ -82,7 +82,7 @@ namespace Example.Mod{
     using Pen = Func<DSLforSkillLogic.SourceFile, DSLforSkillLogic.SourceFile>;
     using DSL = DSLforSkillLogic;
     public class MyProfession : MainProfession{//主职业必须继承这个抽象类
-        public string Name => "myprofession";//实现属性
+        public string Name => "myprofession";//实现属性，必须是全小写
         /*被动技能是可选的
         public override DSL.SourceFile PassiveSkill(ISkillContext sc){
             //此处即被动技能逻辑
