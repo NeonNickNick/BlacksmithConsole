@@ -31,7 +31,7 @@
 
 - bool Body.Resource.Check(ResourceType, float, bool = false)//该bool参数用于控制是否只检查普通资源，例如只检查普通铁。即第一个参数类型为金铁只要bool参数设置正确就能正确工作
 - float Body.Resource.QueryCommon(ResourceType)//查询普通资源数量。传入金铁也能正确工作，但是不建议
-- float Body.Resource.QueryGold(ResourceType)//查询金资源数量。传入铁也能正常工作。对于其他资源，不存在金类型，不建议调用这个函数，因为必定返回0f
+- float Body.Resource.QueryGold(ResourceType)//查询金资源数量。传入铁也能正常工作。对于其他资源，不存在金类型，不建议调用这个方法，因为必定返回0f
 
 - void Body.Skill.AddPackage(ISkillPackage)//无需关心这个接口，直接new一个职业类进去即可添加职业
 - void AddSkill(string packageName, string skillName)//使这个技能变得可用。请务必检查拼写正确且技能名全小写，包名与实际保持一致。传错什么都不会发生
@@ -73,7 +73,7 @@ Pen pen = sf => sf
 ## 编写Mod实例
 以保持一致性。
 
-主程序集提供了反射方法来自动获取技能名和技能函数，因此只需要按照约定实现抽象类，编写技能函数即可方便地添加新职业。
+主程序集提供了反射方法来自动获取技能名和技能方法，因此只需要按照约定实现抽象类，编写技能方法即可方便地添加新职业。
 
 接下来假设来编写一个职业，装备它需要消耗1个铁，它只有一个技能“Joke”：生命值大于5时，消耗1个铁和1点HP和1点MHP，获取一个铁，恢复1点生命值，造成3点物理伤害和3点法术伤害。其中，法术伤害具有50%吸血效果。
 
@@ -95,10 +95,12 @@ namespace Example.Mod{
             AvailableSkillNames.Remove("midastouch");
             */
         }
-        private static bool JokeCheck(ISkillContext sc){//函数名必须为$"{技能名}Check"，必须为bool(ISkillContext)。该函数作用在于检查技能是否能够使用
+        //必须为实例方法
+        private bool JokeCheck(ISkillContext sc){//方法名必须为$"{技能名}Check"，必须为bool(ISkillContext)。该方法作用在于检查技能是否能够使用
             return sc.Self.Focus.Health.HP > 5 && sc.Self.Focus.Resource.Check(ResourceType.Iron, 1);
         }
-        private static DSL.SourceFile Joke(ISkillContext sc){//函数名必须为$"技能名"，必须为DSL.SourceFile(ISkillContext)。该函数即技能逻辑，建议使用提供的DSL编写
+        //必须为实例方法
+        private DSL.SourceFile Joke(ISkillContext sc){//方法名必须为$"技能名"，必须为DSL.SourceFile(ISkillContext)。该方法即技能逻辑，建议使用提供的DSL编写
             Pen pen = sf => sf
                 .UseResource(1, ResourceType.Iron)
                 .WriteFree(source =>
@@ -133,10 +135,12 @@ namespace Example.Mod{
             InitializeSkills();//重要，如果不调用主程序就不知道还有这个扩展
             //此处可添加若干逻辑，例如如果扩展技能也要维护一个内部状态
         }
-        private static bool MyProfessionCheck(ISkillContext sc){//函数名必须为$"{技能名}Check"，必须为bool(ISkillContext)
+        //必须为实例方法
+        private bool MyProfessionCheck(ISkillContext sc){//方法名必须为$"{技能名}Check"，必须为bool(ISkillContext)
             return sc.Self.Focus.Resource.Check(ResourceType.Iron, 1);
         }
-        private static DSL.SourceFile MyProfession(ISkillContext sc){//函数名必须为$"技能名"，必须为DSL.SourceFile(ISkillContext)
+        //必须为实例方法
+        private DSL.SourceFile MyProfession(ISkillContext sc){//方法名必须为$"技能名"，必须为DSL.SourceFile(ISkillContext)
             Pen pen = sf => sf
                 .UseResource(1, ResourceType.Iron)
                 .WriteFree(source => 
@@ -149,6 +153,8 @@ namespace Example.Mod{
     }
 }
 ```
+技能方法和技能校验方法必须为实例方法。对于与技能包状态无关的工具方法建议设为静态，与状态有关的方法名需要避开“Check”与所有可能的技能名，建议给这种方法名加特殊前缀防止偶然重名。
+
 接下来打包即可。
 
 ## 温馨提示
