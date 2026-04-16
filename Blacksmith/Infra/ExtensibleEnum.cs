@@ -2,19 +2,26 @@ using System.Reflection;
 using System.Runtime.CompilerServices;
 namespace Blacksmith.Infra
 {
-    public class ExtensibleEnum<T> where T : new()
+    public abstract class ExtensibleEnum
+    {
+        protected static bool _isOpen = true;
+        public static void CloseFactory() => _isOpen = false;
+        public abstract Type GetEEValueType();
+        public abstract void Create(string name, int priority);
+    }
+    public class ExtensibleEnum<T> : ExtensibleEnum where T : new()
     {
         private static readonly Lazy<T> _lazy = new Lazy<T>(() => new T());
         public static T Instance => _lazy.Value;
-        public bool IsOpen { get; private set; } = true;
+        
         public struct EEValue : IComparable<EEValue>
         {
             private static int _counter = 0;
             private readonly int _uniqueID;
             private readonly int _priority;
-            internal EEValue(ExtensibleEnum<T> factory, int priority)
+            internal EEValue(int priority)
             {
-                if (!factory.IsOpen)
+                if (!_isOpen)
                 {
                     throw new ArgumentException("EEValue Factory has been closed!");
                 }
@@ -42,20 +49,27 @@ namespace Blacksmith.Infra
                 return _uniqueID.GetHashCode();
             }
         }
-        private EEValue Create(int priority)
+        public override Type GetEEValueType()
         {
-            if (!IsOpen)
+            return typeof(EEValue);
+        }
+        public override void Create(string name, int priority)
+        {
+            if (!_isOpen)
             {
                 throw new ArgumentException("EEValue Factory has been closed!");
             }
-            return new EEValue(this, priority);
+            if(!_enumDict.TryGetValue(name, out var value))
+            {
+                var e = new EEValue(priority);
+                _enumDict[name] = e;
+            }
         }
-        public void CloseFactory() => IsOpen = false;
         protected ExtensibleEnum()
         {
             var type = this.GetType();
             var methods = type.GetMethods(BindingFlags.Public | BindingFlags.Instance);
-            var fields = type.GetFields(BindingFlags.NonPublic)
+            var fields = type.GetFields(BindingFlags.NonPublic | BindingFlags.Static)
                              .Where(f => f.IsInitOnly)
                              .Where(f => f.FieldType == typeof(int))
                              .ToList();
@@ -82,30 +96,28 @@ namespace Blacksmith.Infra
                     continue;
                 }
 
-                _enumDict[methodName] = Create(priority);
+                Create(methodName, priority);
             }
-
-            CloseFactory();
         }
         private static Dictionary<string, EEValue> _enumDict = new();
         public static EEValue GetEEValue([CallerMemberName] string name = "") => _enumDict[name];
     }
-    public class AttackType : ExtensibleEnum<AttackType>
+    public class TestType : ExtensibleEnum<TestType>
     {
-        private readonly int _physical256 = 256;
+        private static readonly int _physical256 = 256;
         public EEValue Physical() => GetEEValue();
 
-        private readonly int _magical128 = 128;
+        private static readonly int _magical128 = 128;
         public EEValue Magical() => GetEEValue();
 
-        private readonly int _real0 = 0;
+        private static readonly int _real0 = 0;
         public EEValue Real() => GetEEValue();
     }
     //模拟外部程序集
-    public static class MyAttackTypeExtension
+    public static class MyTestEnumExtension
     {
         private static readonly int _mytype64 = 64;
-        public static AttackType.EEValue MyType => AttackType.GetEEValue();
+        public static TestType.EEValue MyType(this TestType testType) => TestType.GetEEValue();
     }
 
 }

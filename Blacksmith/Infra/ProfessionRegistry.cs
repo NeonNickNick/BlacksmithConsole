@@ -1,6 +1,6 @@
 using Blacksmith.Backend.SkillPackages.Core;
 
-namespace Blacksmith.Mod
+namespace Blacksmith.Infra
 {
     public static class ProfessionRegistry
     {

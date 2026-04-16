@@ -1,7 +1,7 @@
 using System.Reflection;
 using Blacksmith.Backend.Backend.SkillPackages.Logic;
 using Blacksmith.Backend.SkillPackages.Logic;
-using Blacksmith.Mod;
+using Blacksmith.Infra;
 
 namespace Blacksmith.Backend.SkillPackages.Core
 {

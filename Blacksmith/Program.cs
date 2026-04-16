@@ -3,12 +3,14 @@ using Blacksmith.AI.Strategies;
 using Blacksmith.Backend.SkillPackages.Core;
 using Blacksmith.Mod;
 using Blacksmith.Frontend;
+using Blacksmith.Infra;
 namespace Blacksmith
 {
     public static class Program
     {
         public static void Main()
         {
+            LoadEnumExtensionPlugins();
             LoadProfessionPlugins();
             List<IAIStrategy> strategies = new()
             {
@@ -16,15 +18,14 @@ namespace Blacksmith
             };
             ConsoleFrontend.Start(strategies);
         }
-        private static void LoadTypePlugins()
+        private static void LoadEnumExtensionPlugins()
         {
-
+            PluginLoader.LoadEnumExtensionPlugins();
         }
-
         private static void LoadProfessionPlugins()
         {
             //先注册Mod包名
-            var ModProfessionPlugins = PluginLoader.LoadPlugins<SkillPackageBase>(".");
+            var ModProfessionPlugins = PluginLoader.LoadProfessionPlugins<SkillPackageBase>(".");
             foreach (var plugin in ModProfessionPlugins)
             {
                 if (plugin.PackageType == PackageType.Main)
