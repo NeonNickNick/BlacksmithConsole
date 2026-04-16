@@ -29,7 +29,7 @@ namespace Blacksmith.Backend.SkillPackages.Logic.BuitinProfessions
                     source.Focus.Health.LoseHP(4);
                 })
                 .WriteAttack(IncreaseAttack(6), AttackType.Magic)
-                    .BloodSuck(0.75f);
+                    .BloodSuck(0.66f);
             return DSL.Create(sc.Self, pen);
         }
         private bool BloodLustCheck(ISkillContext sc)

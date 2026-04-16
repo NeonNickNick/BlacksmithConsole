@@ -196,7 +196,7 @@ namespace Blacksmith.Backend.SkillPackages.Logic.BuitinProfessions
         private DSL.SourceFile BloodSigil(ISkillContext sc)
         {
             Pen pen = sf => sf
-                .UseResource(3, ResourceType.Iron)
+                .UseResource(7, ResourceType.Iron)
                 .WriteFree(source =>
                 {
                     ExcludeAllProfessions(source);
@@ -209,8 +209,8 @@ namespace Blacksmith.Backend.SkillPackages.Logic.BuitinProfessions
                     };
                     addition.ForEach(a => source.Focus.Skill.RemoveSkill("common", a));
                     source.Focus.Skill.AddPackage(new BloodSigil());
-                    source.Focus.Health.GainMHP(4);
-                    source.Focus.Health.GainHP(4);
+                    source.Focus.Health.GainMHP(3);
+                    source.Focus.Health.GainHP(3);
                 });
             return DSL.Create(sc.Self, pen);
         }

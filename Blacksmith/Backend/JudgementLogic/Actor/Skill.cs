@@ -75,5 +75,19 @@ namespace Blacksmith.Backend.JudgementLogic.Actor
         {
             return _packages.Select(p => p.SkillPackage.PassiveSkill(sc)).ToList();
         }
+        public List<string> GetAvailableSkillNames()
+        {
+            return _packages
+                .Where(p => p.IsActive)
+                .SelectMany(p => p.SkillPackage.AvailableSkillNames)
+                .ToList();
+        }
+        public List<string> GetActivePackageNames()
+        {
+            return _packages
+                .Where(p => p.IsActive)
+                .Select(p => p.Name)
+                .ToList();
+        }
     }
 }

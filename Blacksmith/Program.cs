@@ -1,3 +1,5 @@
+using Blacksmith.AI;
+using Blacksmith.AI.Strategies;
 using Blacksmith.Backend.SkillPackages.Core;
 using Blacksmith.Mod;
 using Blacksmith.Frontend;
@@ -8,7 +10,11 @@ namespace Blacksmith
         public static void Main()
         {
             LoadProfessionPlugins();
-            ConsoleFrontend.Start();
+            List<IAIStrategy> strategies = new()
+            {
+                new BloodSigilStrategy()
+            };
+            ConsoleFrontend.Start(strategies);
         }
         private static void LoadTypePlugins()
         {
