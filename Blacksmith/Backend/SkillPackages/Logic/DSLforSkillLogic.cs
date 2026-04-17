@@ -1,4 +1,3 @@
-using System;
 using Blacksmith.Backend.JudgementLogic.Actor;
 using Blacksmith.Backend.JudgementLogic.Core;
 using Blacksmith.Backend.JudgementLogic.Entities;
@@ -12,7 +11,7 @@ namespace Blacksmith.Backend.SkillPackages.Logic
     {
         public class SourceFile
         {
-            private enum SentenceType
+            protected enum SentenceType
             {
                 Attack,
                 Defense,
@@ -21,12 +20,12 @@ namespace Blacksmith.Backend.SkillPackages.Logic
                 Recovery,
                 Free
             }
-            private enum StructureType
+            protected enum StructureType
             {
                 Main,
                 Rhetoric
             }
-            private class Sentence
+            protected class Sentence
             {
                 public Action<ActorSet> Structure { get; }
                 public SentenceType SentenceType { get; }
@@ -40,10 +39,10 @@ namespace Blacksmith.Backend.SkillPackages.Logic
                     BindSentence = bindSentence;
                 }
             }
-            private readonly ActorSet _owner; 
-            private List<Sentence> _sentences = new();
-            private Stack<Sentence> _rhetoricCache = new();
-            private List<string> _mutationsOnCompile = new();
+            protected readonly ActorSet _owner; 
+            protected List<Sentence> _sentences = new();
+            protected Stack<Sentence> _rhetoricCache = new();
+            protected List<string> _mutationsOnCompile = new();
             public SourceFile(ActorSet owner)
             {
                 _owner = owner;
@@ -77,7 +76,7 @@ namespace Blacksmith.Backend.SkillPackages.Logic
                 _sentences.Add(new(action, SentenceType.Free, StructureType.Main));
                 return this;
             }
-            public SourceFile WriteAttack(
+            public AttackFile WriteAttack(
                 float power,
                 AttackType attackType,
                 float APFactor = 1,
@@ -130,25 +129,7 @@ namespace Blacksmith.Backend.SkillPackages.Logic
                     };
                     resolution.Source.Focus.TurnContext.WriteResolution(resolution);
                 }, SentenceType.Attack, StructureType.Main));
-                return this;
-            }
-            public SourceFile BloodSuck(float percent)
-            {
-                var suck = (ActorSet? source, Body target, AttackResolution resolution) =>
-                {
-                    source?.Focus.Health.GainHP((int)MathF.Ceiling(resolution.Power * percent));
-                };
-                _rhetoricCache.Push(new((ActorSet source) =>
-                {
-                    var list = source.Focus.TurnContext.AttackResolutions;
-                    if (list.Count == 0)
-                    {
-                        return;
-                    }
-                    var last = list[^1];
-                    last.AddStage(AttackStage.OnEnd, suck);
-                }, SentenceType.Attack, StructureType.Rhetoric, _sentences[^1]));
-                return this;
+                return (AttackFile)this;
             }
             
             public SourceFile WriteRecovery(int power)
@@ -157,7 +138,7 @@ namespace Blacksmith.Backend.SkillPackages.Logic
                 {
                     source.Focus.Health.GainHP(power);
                 }, SentenceType.Recovery, StructureType.Main));
-                return this;
+                return (RecoveryFile)this;
             }
             public SourceFile WriteDefense(
                 float power,
@@ -180,7 +161,7 @@ namespace Blacksmith.Backend.SkillPackages.Logic
                     };
                     source.Focus.TurnContext.WriteResolution(resolution);
                 }, SentenceType.Defense, StructureType.Main));
-                return this;
+                return (DefenseFile)this;
             }
             public SourceFile WriteResource(
                 float power,
@@ -202,7 +183,7 @@ namespace Blacksmith.Backend.SkillPackages.Logic
                     };
                     source.Focus.TurnContext.WriteResolution(resolution);
                 }, SentenceType.Resource, StructureType.Main));
-                return this;
+                return (ResourceFile)this;
             }
             public SourceFile WriteEffect(
                 EffectType type,
@@ -224,7 +205,7 @@ namespace Blacksmith.Backend.SkillPackages.Logic
                     };
                     source.Focus.TurnContext.WriteResolution(resolution);
                 }, SentenceType.Effect, StructureType.Main));
-                return this;
+                return (EffectFile)this;
             }
             public SourceFile UseResource(float need, ResourceType type, bool ifCommonOnly = false)
             {
@@ -234,6 +215,56 @@ namespace Blacksmith.Backend.SkillPackages.Logic
             {
                 _mutationsOnCompile.Add(ruleKey);
                 return this;
+            }
+        }
+
+        //安全性校验
+        public class DefenseFile : SourceFile
+        {
+            public DefenseFile(ActorSet owner) : base(owner)
+            {
+            }
+        }
+        public class RecoveryFile : SourceFile
+        {
+            public RecoveryFile(ActorSet owner) : base(owner)
+            {
+            }
+        }
+        public class AttackFile : SourceFile
+        {
+            public AttackFile BloodSuck(float percent)
+            {
+                var suck = (ActorSet? source, Body target, AttackResolution resolution) =>
+                {
+                    source?.Focus.Health.GainHP((int)MathF.Ceiling(resolution.Power * percent));
+                };
+                _rhetoricCache.Push(new((ActorSet source) =>
+                {
+                    var list = source.Focus.TurnContext.AttackResolutions;
+                    if (list.Count == 0)
+                    {
+                        return;
+                    }
+                    var last = list[^1];
+                    last.AddStage(AttackStage.OnEnd, suck);
+                }, SentenceType.Attack, StructureType.Rhetoric, _sentences[^1]));
+                return this;
+            }
+            public AttackFile(ActorSet owner) : base(owner)
+            {
+            }
+        }
+        public class ResourceFile : SourceFile
+        {
+            public ResourceFile(ActorSet owner) : base(owner)
+            {
+            }
+        }
+        public class EffectFile : SourceFile
+        {
+            public EffectFile(ActorSet owner) : base(owner)
+            {
             }
         }
         /// <summary>

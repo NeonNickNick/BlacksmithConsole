@@ -1,7 +1,7 @@
 using System.Reflection;
 using Blacksmith.Backend.Backend.SkillPackages.Logic;
 using Blacksmith.Backend.SkillPackages.Logic;
-using Blacksmith.Infra;
+using Blacksmith.Infra.ExtensibleProfession;
 
 namespace Blacksmith.Backend.SkillPackages.Core
 {

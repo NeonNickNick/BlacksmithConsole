@@ -1,22 +1,36 @@
 using System.Reflection;
-using Blacksmith.Infra;
+using Blacksmith.Infra.Attributes;
+using Blacksmith.Infra.ExtensibleEnum;
 namespace Blacksmith.Mod
 {
     public static class PluginLoader
     {
-        public static List<T> LoadProfessionPlugins<T>(string folderPath = ".")
+        private static readonly List<Assembly> _cache = new();
+        public static void Initialize(string folderPath = ".")
         {
-            var plugins = new List<T>();
-
             if (!Directory.Exists(folderPath))
-                return plugins;
+                return;
 
-            foreach (var dll in Directory.GetFiles(folderPath, "*.dll"))
+            foreach(var dll in Directory.GetFiles(folderPath, "*.dll"))
             {
                 try
                 {
                     var assembly = Assembly.LoadFrom(dll);
-
+                    _cache.Add(assembly);
+                }
+                catch
+                {
+					Console.WriteLine($"加载 {dll} 失败");
+				}
+            }
+        }
+        public static List<T> LoadPluginsByType<T>()
+        {
+            var plugins = new List<T>();
+            foreach (var assembly in _cache)
+            {
+                try
+                {
                     var types = assembly.GetTypes()
                         .Where(t => typeof(T).IsAssignableFrom(t)
                                     && t.IsClass
@@ -29,78 +43,55 @@ namespace Blacksmith.Mod
                             plugins.Add(plugin);
                     }
                 }
-                catch (BadImageFormatException)
+                catch
                 {
-                    // 不是有效的 .NET 程序集，跳过
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine($"加载 {dll} 失败: {ex.Message}");
+                    Console.WriteLine($"加载 {assembly} 失败");
                 }
             }
 
             return plugins;
         }
-        public static void LoadEnumExtensionPlugins(string folderPath = ".")
+        public static void LoadBlacksmithEnumModifierPlugins()
         {
-            foreach (string dllPath in Directory.GetFiles(folderPath, "*.dll"))
+            foreach (var assembly in _cache)
             {
                 try
                 {
-                    Assembly assembly = Assembly.LoadFrom(dllPath);
                     var staticClasses = assembly.GetTypes()
                         .Where(t => t.IsClass
                                     && t.IsAbstract
                                     && t.IsSealed  // 静态类的特征
-                                    && t.Name.EndsWith("EnumExtension", StringComparison.OrdinalIgnoreCase));
+                                    && t.GetCustomAttribute<IsBlacksmithEnumModifier>() != null);
 
                     foreach (Type type in staticClasses)
                     {
-                        ProcessEnumExtensionPlugins(type);
+						ProcessBlacksmithEnumModifierPlugins(type);
                     }
                 }
-                catch (Exception ex)
+                catch
                 {
-                    Console.WriteLine($"加载 DLL 失败: {dllPath}, 错误: {ex.Message}");
+                    Console.WriteLine($"加载{assembly}失败");
                 }
             }
-            ExtensibleEnum.CloseFactory();
+            BlacksmithEnum.CloseFactory();
         }
-        private static void ProcessEnumExtensionPlugins(Type type)
+        private static void ProcessBlacksmithEnumModifierPlugins(Type type)
         {
-            var supportedEnumDict = EnumExtensionRegistry.SupportedEnumDict;
-            var eeValueTypeDict = EnumExtensionRegistry.EEValueTypeDict;
+            var supportedEnumDict = BlacksmithEnumRegistry.SupportedEnumDict;
+            var eeValueTypeDict = BlacksmithEnumRegistry.EEValueTypeDict;
             var methods = type.GetMethods(BindingFlags.Public | BindingFlags.Static);
-            var fields = type.GetFields(BindingFlags.NonPublic | BindingFlags.Static)
-                             .Where(f => f.IsInitOnly)
-                             .Where(f => f.FieldType == typeof(int))
-                             .ToList();
             foreach (var method in methods)
             {
+                var metaData = method.GetCustomAttribute<IsBlacksmithEnumMenberExtension>();
                 var temp = method.GetParameters()[0].ParameterType;
-                if (method.GetParameters().Length != 1 ||
+                if (metaData == null ||
+                    method.GetParameters().Length != 1 ||
                     !supportedEnumDict.Keys.Contains(temp) ||
                     method.ReturnType != eeValueTypeDict[temp])
                 {
                     continue;
                 }
-                string methodName = method.Name;
-                string prefix = "_" + methodName.ToLower();
-                var fieldNames = fields.Select(f => f.Name).Where(f => f.StartsWith(prefix)).ToList();
-                if (fieldNames.Count != 1)
-                {
-                    continue;
-                }
-                int priority = 0;
-                try
-                {
-                    priority = int.Parse(fieldNames[0].Remove(0, prefix.Length));
-                }
-                catch
-                {
-                    continue;
-                }
-                EnumExtensionRegistry.RegistEnumExtension(supportedEnumDict[temp], method.Name, priority);
+                BlacksmithEnumRegistry.RegistBlacksmithEnumModifier(supportedEnumDict[temp], method.Name, metaData.Priority);
             }
         }
     }

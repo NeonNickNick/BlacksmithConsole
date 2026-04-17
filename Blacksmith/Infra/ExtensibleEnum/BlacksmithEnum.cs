@@ -1,24 +1,26 @@
 using System.Reflection;
 using System.Runtime.CompilerServices;
-namespace Blacksmith.Infra
+using Blacksmith.Infra.Attributes;
+namespace Blacksmith.Infra.ExtensibleEnum
 {
-    public abstract class ExtensibleEnum
+    public abstract class BlacksmithEnum
     {
         protected static bool _isOpen = true;
         public static void CloseFactory() => _isOpen = false;
         public abstract Type GetEEValueType();
         public abstract void Create(string name, int priority);
     }
-    public class ExtensibleEnum<T> : ExtensibleEnum where T : new()
+    public abstract class BlacksmithEnum<T> : BlacksmithEnum 
+        where T : BlacksmithEnum<T>, new()
     {
-        private static readonly Lazy<T> _lazy = new Lazy<T>(() => new T());
-        public static T Instance => _lazy.Value;
+        //实际上可断言一定是先调用构造函数，此时已经不是null
+        public static T Instance { get; private set; } = null!;
         
         public struct EEValue : IComparable<EEValue>
         {
             private static int _counter = 0;
             private readonly int _uniqueID;
-            private readonly int _priority;
+            public readonly int _priority;
             internal EEValue(int priority)
             {
                 if (!_isOpen)
@@ -59,65 +61,50 @@ namespace Blacksmith.Infra
             {
                 throw new ArgumentException("EEValue Factory has been closed!");
             }
-            if(!_enumDict.TryGetValue(name, out var value))
-            {
-                var e = new EEValue(priority);
-                _enumDict[name] = e;
-            }
+            //这里选择直接覆盖。程序启动时就已经被构造
+            //情况与技能包不同，技能包每次使用都需要创建实例，不便于指定构造参数来应用Modifier
+            //因此采用的方法是在构造函数插入一个修改阶段
+            //而Enum是全局单例，干脆在初始化阶段就修改
+            _enumDict[name] = new EEValue(priority);
         }
-        protected ExtensibleEnum()
+        protected BlacksmithEnum()
         {
-            var type = this.GetType();
+            Instance = (T)this;
+            var type = GetType();
             var methods = type.GetMethods(BindingFlags.Public | BindingFlags.Instance);
-            var fields = type.GetFields(BindingFlags.NonPublic | BindingFlags.Static)
-                             .Where(f => f.IsInitOnly)
-                             .Where(f => f.FieldType == typeof(int))
-                             .ToList();
             foreach (var method in methods)
             {
-                if (method.ReturnType != typeof(EEValue) || method.GetParameters().Length != 0)
+                var metaData = method.GetCustomAttribute<IsBlacksmithEnumMenberExtension>();
+                if (method.ReturnType != typeof(EEValue) ||
+                    method.GetParameters().Length != 0 || 
+                    metaData == null)
                 {
                     continue; 
                 }
                 string methodName = method.Name;
-                string prefix = "_" + methodName.ToLower();
-                var fieldNames = fields.Select(f => f.Name).Where(f => f.StartsWith(prefix)).ToList();
-                if(fieldNames.Count != 1)
-                {
-                    continue;
-                }
-                int priority = 0;
-                try
-                {
-                    priority = int.Parse(fieldNames[0].Remove(0, prefix.Length));
-                }
-                catch
-                {
-                    continue;
-                }
-
-                Create(methodName, priority);
+                Create(methodName, metaData.Priority);
             }
         }
         private static Dictionary<string, EEValue> _enumDict = new();
         public static EEValue GetEEValue([CallerMemberName] string name = "") => _enumDict[name];
     }
-    public class TestType : ExtensibleEnum<TestType>
+    public class TestType : BlacksmithEnum<TestType>
     {
-        private static readonly int _physical256 = 256;
+        [IsBlacksmithEnumMenberExtension(256)]
         public EEValue Physical() => GetEEValue();
 
-        private static readonly int _magical128 = 128;
+        [IsBlacksmithEnumMenberExtension(128)]
         public EEValue Magical() => GetEEValue();
 
-        private static readonly int _real0 = 0;
+        [IsBlacksmithEnumMenberExtension(0)]
         public EEValue Real() => GetEEValue();
     }
     //模拟外部程序集
+    [IsBlacksmithEnumModifier]
     public static class MyTestEnumExtension
     {
-        private static readonly int _mytype64 = 64;
-        public static TestType.EEValue MyType(this TestType testType) => TestType.GetEEValue();
+        [IsBlacksmithEnumMenberExtension(256)]
+        public static TestType.EEValue Magical(this TestType testType) => TestType.GetEEValue();
     }
 
 }

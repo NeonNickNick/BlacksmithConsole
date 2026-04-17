@@ -4,7 +4,7 @@ using Blacksmith.Backend.JudgementLogic.Core;
 using Blacksmith.Backend.JudgementLogic.Defenses;
 using Blacksmith.Backend.JudgementLogic.Judgement;
 using Blacksmith.Backend.SkillPackages.Core;
-using Blacksmith.Infra;
+using Blacksmith.Infra.ExtensibleProfession;
 
 namespace Blacksmith.Backend.SkillPackages.Logic.BuitinProfessions
 {

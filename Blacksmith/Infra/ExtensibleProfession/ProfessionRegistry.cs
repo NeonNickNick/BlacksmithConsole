@@ -1,6 +1,6 @@
 using Blacksmith.Backend.SkillPackages.Core;
 
-namespace Blacksmith.Infra
+namespace Blacksmith.Infra.ExtensibleProfession
 {
     public static class ProfessionRegistry
     {
@@ -10,7 +10,7 @@ namespace Blacksmith.Infra
         {
             if (Professions.Contains(professionName))
             {
-                Console.WriteLine($"Profession \"{professionName}\" already exists! Expansion addition failed!");
+                throw new ArgumentException($"Profession \"{professionName}\" already exists! Expansion addition failed!");
             }
             else
             {
