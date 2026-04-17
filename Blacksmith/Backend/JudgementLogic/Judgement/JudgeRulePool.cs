@@ -126,7 +126,7 @@ namespace Blacksmith.Backend.JudgementLogic.Judgement
             
             var playerResolutions = player.Focus.TurnContext.EffectResolutions;
 
-            var reflect = playerResolutions.Where(e => e.TargetType == EffectTargetType.Enemy || e.DelayRounds == 0).ToList();
+            var reflect = playerResolutions.Where(e => e.TargetType == EffectTargetType.Instance.Enemy() || e.DelayRounds == 0).ToList();
 
             playerResolutions.RemoveAll(e => reflect.Contains(e));
 

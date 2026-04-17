@@ -16,8 +16,6 @@ namespace Blacksmith
             PluginLoader.Initialize(".");
 			LoadBlacksmithEnumModifierPlugins();
             LoadProfessionPlugins();
-            Console.WriteLine(TestType.Instance.Physical()._priority);
-			Console.WriteLine(TestType.Instance.Magical()._priority);
 
 			List<IAIStrategy> strategies = new()
             {

@@ -1,18 +1,15 @@
+using Blacksmith.Infra.Attributes;
+using Blacksmith.Infra.ExtensibleEnum;
+
 namespace Blacksmith.Backend.JudgementLogic.Core
 {
-    public enum AttackType
-    {
-        Physical,
-        Magic,
-        Real,
-    }/*
     public class AttackType : BlacksmithEnum<AttackType>
     {
         [IsBlacksmithEnumMember(256)]
-        public EEValue Physical() => GetEEValue();
+        public BEValue Physical() => GetBEValue();
         [IsBlacksmithEnumMember(128)]
-        public EEValue Magical() => GetEEValue();
+        public BEValue Magical() => GetBEValue();
         [IsBlacksmithEnumMember(0)]
-        public EEValue Real() => GetEEValue();
-    }*/
+        public BEValue Real() => GetBEValue();
+    }
 }

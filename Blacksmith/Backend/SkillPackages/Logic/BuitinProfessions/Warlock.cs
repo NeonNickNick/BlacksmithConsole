@@ -18,26 +18,26 @@ namespace Blacksmith.Backend.SkillPackages.Logic.BuitinProfessions
         }
         private bool MagicCheck(ISkillContext sc)
         {
-            return sc.Self.Focus.Resource.Check(ResourceType.Iron, 1);
+            return sc.Self.Focus.Resource.Check(ResourceType.Instance.Iron(), 1);
         }
         private DSL.SourceFile Magic(ISkillContext sc)
         {
             Pen pen = sf => sf
-                .UseResource(1, ResourceType.Iron)
-                .WriteResource(1, ResourceType.Magic);
+                .UseResource(1, ResourceType.Instance.Iron())
+                .WriteResource(1, ResourceType.Instance.Magic());
             return DSL.Create(sc.Self, pen);
         }
 
         private bool MagicAttackCheck(ISkillContext sc)
         {
-            return sc.Param > 0 && sc.Self.Focus.Resource.Check(ResourceType.Magic, sc.Param);
+            return sc.Param > 0 && sc.Self.Focus.Resource.Check(ResourceType.Instance.Magic(), sc.Param);
         }
         private DSL.SourceFile MagicAttack(ISkillContext sc)
         {
             Pen pen = sf => sf
-                .WriteAttack(2 * sc.Param, AttackType.Physical, delayRounds: 0)
-                .WriteAttack(2 * sc.Param, AttackType.Physical, delayRounds: 1)
-                .WriteAttack(2 * sc.Param, AttackType.Physical, delayRounds: 2);
+                .WriteAttack(2 * sc.Param, AttackType.Instance.Physical(), delayRounds: 0)
+                .WriteAttack(2 * sc.Param, AttackType.Instance.Physical(), delayRounds: 1)
+                .WriteAttack(2 * sc.Param, AttackType.Instance.Physical(), delayRounds: 2);
             return DSL.Create(sc.Self, pen);
         }
 
@@ -45,10 +45,10 @@ namespace Blacksmith.Backend.SkillPackages.Logic.BuitinProfessions
         private DSL.SourceFile Mute(ISkillContext sc)
         {
             Pen pen = sf => sf
-               .WriteEffect(EffectType.AfterTransport, new(){ EffectTag.Debuff}, EffectTargetType.Enemy, 0, 1,
+               .WriteEffect(EffectType.Instance.AfterTransport(), EffectTargetType.Instance.Enemy(), 0, 1,
                (ActorSet source, Body main, EffectEntity effectEntity) =>
                {
-                   main.TurnContext.ResourceResolutions.RemoveAll(r => r.Type == ResourceType.Space || r.Type == ResourceType.Time);
+                   main.TurnContext.ResourceResolutions.RemoveAll(r => r.Type == ResourceType.Instance.Space() || r.Type == ResourceType.Instance.Time());
                });
             return DSL.Create(sc.Self, pen);
         }
@@ -66,18 +66,18 @@ namespace Blacksmith.Backend.SkillPackages.Logic.BuitinProfessions
                     source.Focus.Health.LoseMHP(1);
                 })
                 .WriteDefense(7, new RealReduction())
-                .WriteResource(2, ResourceType.Iron);
+                .WriteResource(2, ResourceType.Instance.Iron());
             return DSL.Create(sc.Self, pen);
         }
 
         private bool AlchemyCheck(ISkillContext sc)
         {
-            return sc.Self.Focus.Resource.Check(ResourceType.Iron, 2);
+            return sc.Self.Focus.Resource.Check(ResourceType.Instance.Iron(), 2);
         }
         private DSL.SourceFile Alchemy(ISkillContext sc)
         {
             Pen pen = sf => sf
-                .UseResource(2, ResourceType.Iron)
+                .UseResource(2, ResourceType.Instance.Iron())
                 .WriteFree(source =>
                 {
                     source.Focus.Skill.AddSkill("warlock", "midastouch");
@@ -88,14 +88,14 @@ namespace Blacksmith.Backend.SkillPackages.Logic.BuitinProfessions
 
         private bool MidasTouchCheck(ISkillContext sc)
         {
-            return sc.Self.Focus.Resource.Check(ResourceType.Iron, 1, true);
+            return sc.Self.Focus.Resource.Check(ResourceType.Instance.Iron(), 1, true);
         }
 
         private DSL.SourceFile MidasTouch(ISkillContext sc)
         {
             Pen pen = sf => sf
-                .UseResource(1, ResourceType.Iron, true)
-                .WriteResource(5, ResourceType.GoldIron);
+                .UseResource(1, ResourceType.Instance.Iron(), true)
+                .WriteResource(5, ResourceType.Instance.Gold_Iron());
             return DSL.Create(sc.Self, pen);
         }
     }

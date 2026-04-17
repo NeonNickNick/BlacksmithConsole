@@ -13,7 +13,7 @@ namespace Blacksmith.Backend.JudgementLogic.TurnContexts
     {
         public ActorSet? Source { get; set; }
         public int DelayRounds { get; set; } = 0;
-        public AttackType Type { get; set; }
+        public AttackType.BEValue Type { get; set; }
         public float Power { get; set; }
         public Action<ActorSet> Execute { get; set; } = (a) => { };
         public int TotalDamage { get; set; } = 0;

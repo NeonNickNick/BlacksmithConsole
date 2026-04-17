@@ -1,9 +1,15 @@
+using Blacksmith.Infra.Attributes;
+using Blacksmith.Infra.ExtensibleEnum;
+
 namespace Blacksmith.Backend.JudgementLogic.Core
 {
-    public enum EffectType
+    public class EffectType : BlacksmithEnum<EffectType>
     {
-        AfterResolutionWritten,
-        AfterTransport,
-        AfterResult
+        [IsBlacksmithEnumMember(0)]
+        public BEValue AfterResolutionWritten() => GetBEValue();
+        [IsBlacksmithEnumMember(8)]
+        public BEValue AfterTransport() => GetBEValue();
+        [IsBlacksmithEnumMember(16)]
+        public BEValue AfterResult() => GetBEValue();
     }
 }

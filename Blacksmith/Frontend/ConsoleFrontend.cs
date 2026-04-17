@@ -1,6 +1,7 @@
 using System.Text;
 using Blacksmith.AI;
 using Blacksmith.Backend.JudgementLogic.Actor;
+using Blacksmith.Backend.JudgementLogic.Core;
 using Blacksmith.FrontendBackendInterface;
 using Blacksmith.FrontEndBackendInterface;
 namespace Blacksmith.Frontend
@@ -223,7 +224,7 @@ namespace Blacksmith.Frontend
                 -------------------------------------------------------------------------------------------------
                 You:
                 HP: {player.Health.HP}/{player.Health.MHP}
-                Resource: Iron: {player.Resource.QueryCommon(ResourceType.Iron)}/{player.Resource.QueryGold(ResourceType.Iron)}  Space: {player.Resource.QueryCommon(ResourceType.Space)}  Time: {player.Resource.QueryCommon(ResourceType.Time)}
+                Resource: Iron: {player.Resource.QueryCommon(ResourceType.Instance.Iron())}/{player.Resource.QueryGold(ResourceType.Instance.Iron())}  Space: {player.Resource.QueryCommon(ResourceType.Instance.Space())}  Time: {player.Resource.QueryCommon(ResourceType.Instance.Time())}
                 """);
             string ds = $"";
             player.Defense.Defenses.ForEach(d => ds += $"{d.Type}: {d.Power}  ");
@@ -236,7 +237,7 @@ namespace Blacksmith.Frontend
                 +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
                 Robert:
                 HP: {enemy.Health.HP}/{enemy.Health.MHP}
-                Resource: Iron: {enemy.Resource.QueryCommon(ResourceType.Iron)}/{enemy.Resource.QueryGold(ResourceType.Iron)}  Space: {enemy.Resource.QueryCommon(ResourceType.Space)}  Time: {enemy.Resource.QueryCommon(ResourceType.Time)}
+                Resource: Iron: {enemy.Resource.QueryCommon(ResourceType.Instance.Iron())}/{enemy.Resource.QueryGold(ResourceType.Instance.Iron())}  Space: {enemy.Resource.QueryCommon(ResourceType.Instance.Space())}  Time: {enemy.Resource.QueryCommon(ResourceType.Instance.Time())}
                 """);
             ds = $"";
             enemy.Defense.Defenses.ForEach(d => ds += $"{d.Type}: {d.Power}  ");

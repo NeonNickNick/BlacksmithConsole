@@ -6,16 +6,14 @@ namespace Blacksmith.Backend.JudgementLogic.Entities
 {
     public class EffectEntity
     {
-        public readonly EffectType Type;
-        public List<EffectTag> Tags { get; set; }
+        public readonly EffectType.BEValue Type;
         public int DelayTimes { get; set; } = 0;
         public int RemainingTimes { get; set; }
         public IResolution Resolution { get; set; }
-        public Action<Body> Execute { get; set; }
-        public EffectEntity(EffectType type, List<EffectTag> tags, int remainingTimes, IResolution resolution)
+        public Action<Body> Execute { get; set; } = null!;
+        public EffectEntity(EffectType.BEValue type, int remainingTimes, IResolution resolution)
         {
             Type = type;
-            Tags = tags;
             RemainingTimes = remainingTimes;
             Resolution = resolution;
         }

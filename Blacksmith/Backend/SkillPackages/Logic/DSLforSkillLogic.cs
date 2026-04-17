@@ -86,7 +86,7 @@ namespace Blacksmith.Backend.SkillPackages.Logic
             }
             public AttackFile WriteAttack(
                 float power,
-                AttackType attackType,
+                AttackType.BEValue attackType,
                 float APFactor = 1,
                 int delayRounds = 0
             )
@@ -107,20 +107,20 @@ namespace Blacksmith.Backend.SkillPackages.Logic
                         {
                             return;
                         }
-                        if (resolution.Type != AttackType.Real)
+                        if (resolution.Type != AttackType.Instance.Real())
                         {
                             var defenses = main.Defense.Get();
 
                             foreach (var temp in defenses)
                             {
-                                if (temp.Type != DefenseType.RealReduction)
+                                if (temp.Type != DefenseType.Instance.RealReduction())
                                 {
                                     resolution.Power *= APFactor;
                                 }
                                 var res = temp.Work(resolution.Source.Focus, main, (int)resolution.Power, resolution.Type);
                                 resolution.Power = res.Item1;
                                 resolution.TotalDamage += res.Item2;
-                                if (temp.Type != DefenseType.RealReduction)
+                                if (temp.Type != DefenseType.Instance.RealReduction())
                                 {
                                     resolution.Power = MathF.Ceiling(resolution.Power / APFactor);
                                 }
@@ -173,7 +173,7 @@ namespace Blacksmith.Backend.SkillPackages.Logic
             }
             public SourceFile WriteResource(
                 float power,
-                ResourceType type,
+                ResourceType.BEValue type,
                 int delayRounds = 0
             )
             {
@@ -194,9 +194,8 @@ namespace Blacksmith.Backend.SkillPackages.Logic
                 return new(this);
             }
             public SourceFile WriteEffect(
-                EffectType type,
-                List<EffectTag> tags,
-                EffectTargetType targetType,
+                EffectType.BEValue type,
+                EffectTargetType.BEValue targetType,
                 float power,
                 int duration,
                 Action<ActorSet, Body, EffectEntity> effectAction
@@ -204,18 +203,18 @@ namespace Blacksmith.Backend.SkillPackages.Logic
             {
                 _sentences.Add(new((ActorSet source) =>
                 {
-                    var resolution = new EffectResolution(type, tags, targetType, power);
+                    var resolution = new EffectResolution(type, targetType, power);
                     resolution.Execute = (ActorSet target) =>
                     {
                         Body main = target.Focus;
-                        AddEffectEntity(source, main, type, tags, duration, resolution, effectAction);
+                        AddEffectEntity(source, main, type, duration, resolution, effectAction);
                         resolution.RunStage(EffectStage.OnSuccessfullyAdded, source, main);
                     };
                     source.Focus.TurnContext.WriteResolution(resolution);
                 }, SentenceType.Effect, StructureType.Main));
                 return new(this);
             }
-            public SourceFile UseResource(float need, ResourceType type, bool ifCommonOnly = false)
+            public SourceFile UseResource(float need, ResourceType.BEValue type, bool ifCommonOnly = false)
             {
                 return WriteFree(source => source.Focus.Resource.Use(type, need, ifCommonOnly));
             }
@@ -278,18 +277,18 @@ namespace Blacksmith.Backend.SkillPackages.Logic
         /// <summary>
         /// 专用于外部产生的孤立效果生成
         /// </summary>
-        public static void AddEffectEntity(Body main, EffectType type, List<EffectTag> tags, int duration, IResolution resolution, Action<Body, EffectEntity> effectAction)
+        public static void AddEffectEntity(Body main, EffectType.BEValue type, int duration, IResolution resolution, Action<Body, EffectEntity> effectAction)
         {
-            EffectEntity effect = new EffectEntity(type, tags, duration, resolution);
+            EffectEntity effect = new EffectEntity(type, duration, resolution);
             effect.Execute = (Body body) => effectAction(body, effect);
             main.Effect.Add(effect);
         }
         /// <summary>
         /// 专用于被EffectResolution引导的效果生成
         /// </summary>
-        public static void AddEffectEntity(ActorSet source, Body main, EffectType type, List<EffectTag> tags, int duration, EffectResolution resolution, Action<ActorSet, Body, EffectEntity> effectAction)
+        public static void AddEffectEntity(ActorSet source, Body main, EffectType.BEValue type, int duration, EffectResolution resolution, Action<ActorSet, Body, EffectEntity> effectAction)
         {
-            EffectEntity effect = new EffectEntity(type, tags, duration, resolution);
+            EffectEntity effect = new EffectEntity(type, duration, resolution);
             effect.Execute = (Body body) => effectAction(source, body, effect);
             main.Effect.Add(effect);
         }

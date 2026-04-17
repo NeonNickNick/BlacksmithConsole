@@ -1,33 +1,21 @@
+using System.Reflection;
+using Blacksmith.Backend.JudgementLogic.Core;
+
 namespace Blacksmith.Backend.JudgementLogic.Actor
 {
-    public enum ResourceType
-    {
-        Iron,
-        GoldIron,
-        Space,
-        Time,
-        Magic,
-        Count
-    }
+    
     public class Resource
     {
         private class ResourceTemplate
         {
-            public ResourceType CommonType { get; }
-            public ResourceType GoldType { get; }
+            public ResourceType.BEValue CommonType { get; }
+            public ResourceType.BEValue GoldType { get; }
             public float Common { get; set; } = 10;
             public float Gold { get; set; } = 0;
-            public ResourceTemplate(ResourceType commonType, ResourceType goldType = ResourceType.Count)
+            public ResourceTemplate(ResourceType.BEValue commonType, ResourceType.BEValue goldType)
             {
                 CommonType = commonType;
-                if (goldType != ResourceType.Count)
-                {
-                    GoldType = goldType;
-                }
-                else
-                {
-                    GoldType = commonType;
-                }
+                GoldType = goldType;
             }
             public bool Check(float need, bool ifCommonOnly = false)
             {
@@ -61,7 +49,7 @@ namespace Blacksmith.Backend.JudgementLogic.Actor
                     Common -= need;
                 }
             }
-            public void Gain(ResourceType type, float add)
+            public void Gain(ResourceType.BEValue type, float add)
             {
                 if(type == CommonType)
                 {
@@ -76,36 +64,62 @@ namespace Blacksmith.Backend.JudgementLogic.Actor
                 }
             }
         }
-        private Dictionary<ResourceType, ResourceTemplate> _resources = new();
+        private Dictionary<ResourceType.BEValue, ResourceTemplate> _resources = new();
         public Resource()
         {
-            var iron = new ResourceTemplate(ResourceType.Iron, ResourceType.GoldIron);
-            var space = new ResourceTemplate(ResourceType.Space);
-            var time = new ResourceTemplate(ResourceType.Time);
-            var magic = new ResourceTemplate(ResourceType.Magic);
-            _resources[ResourceType.Iron] = iron;
-            _resources[ResourceType.GoldIron] = iron;
-            _resources[ResourceType.Space] = space;
-            _resources[ResourceType.Time] = time;
-            _resources[ResourceType.Magic] = magic;
+            Type type = ResourceType.Instance.GetType();
+            FieldInfo? field = type.BaseType?.GetField("_enumDict", BindingFlags.NonPublic | BindingFlags.Static);
+            if(field == null)
+            {
+                throw new ArgumentException("Unreachable!");//不应到达这里
+            }
+            var dict = field.GetValue(null) as Dictionary<string, ResourceType.BEValue>;
+            if (dict == null)
+            {
+                throw new ArgumentException("Unreachable!");//不应到达这里
+            }
+            List<string> enumNames = dict.Keys.ToList();
+            string prefix = "Gold_";
+            List<string> golds = enumNames.Where(e => e.StartsWith(prefix)).ToList();
+            enumNames.RemoveAll(e => golds.Contains(e));
+            foreach(var gold in golds)
+            {
+                string commonName = gold.Remove(0, prefix.Length);
+                if (enumNames.Contains(commonName))
+                {
+                    var shareTemplate = new ResourceTemplate(dict[commonName], dict[gold]);
+                    _resources[dict[commonName]] = shareTemplate;
+                    _resources[dict[gold]] = shareTemplate;
+                    enumNames.Remove(commonName);
+                }
+                else
+                {
+                    throw new ArgumentException($"ResourceType {gold} has no paired general resourceType!");
+                }
+            }
+            foreach(var rest in enumNames)
+            {
+                var template = new ResourceTemplate(dict[rest], dict[rest]);
+                _resources[dict[rest]] = template;
+            }
         }
-        public bool Check(ResourceType type, float need, bool ifCommonOnly = false)
+        public bool Check(ResourceType.BEValue type, float need, bool ifCommonOnly = false)
         {
             return _resources[type].Check(need, ifCommonOnly);
         }
-        public void Use(ResourceType type, float need, bool ifCommonOnly = false)
+        public void Use(ResourceType.BEValue type, float need, bool ifCommonOnly = false)
         {
             _resources[type].Use(need, ifCommonOnly);
         }
-        public void Gain(ResourceType type, float need)
+        public void Gain(ResourceType.BEValue type, float need)
         {
             _resources[type].Gain(type, need);
         }
-        public float QueryCommon(ResourceType type)
+        public float QueryCommon(ResourceType.BEValue type)
         {
             return _resources[type].Common;
         }
-        public float QueryGold(ResourceType type)
+        public float QueryGold(ResourceType.BEValue type)
         {
             return _resources[type].Gold;
         }

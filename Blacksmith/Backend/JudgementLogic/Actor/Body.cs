@@ -21,7 +21,7 @@ namespace Blacksmith.Backend.JudgementLogic.Actor
             Defense.Update();
             Effect.Update();
         }
-        public void EffectEntityWork(EffectType type)
+        public void EffectEntityWork(EffectType.BEValue type)
         {
             Effect.Execute(type, this);
         }

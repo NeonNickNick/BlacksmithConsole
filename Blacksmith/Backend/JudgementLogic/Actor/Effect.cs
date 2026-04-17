@@ -13,7 +13,7 @@ namespace Blacksmith.Backend.JudgementLogic.Actor
         {
             _effects.AddRange(effectEntities);
         }
-        public void Execute(EffectType type, Body body)
+        public void Execute(EffectType.BEValue type, Body body)
         {
             List<EffectEntity> tempList = _effects.Where(e => e.Type == type).ToList();
             foreach (var temp in tempList)

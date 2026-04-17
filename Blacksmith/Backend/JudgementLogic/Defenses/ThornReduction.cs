@@ -6,7 +6,7 @@ namespace Blacksmith.Backend.JudgementLogic.Defenses
     using DSL = DSLforSkillLogic;
     public class ThornReduction : DefenseBase
     {
-        public override DefenseType Type { get; set; } = DefenseType.ThornReduction;
+        public override DefenseType.BEValue Type { get; set; } = DefenseType.Instance.ThornReduction();
         public override int Power { get; set; } = 0;
         public override bool CanMerge { get; set; } = false;
         public override bool IsDead { get; set; } = false;
@@ -19,12 +19,12 @@ namespace Blacksmith.Backend.JudgementLogic.Defenses
         {
             IsDead = true;
         }
-        public override (int, int)  Work(Body source, Body owner, int attack, AttackType type)
+        public override (int, int)  Work(Body source, Body owner, int attack, AttackType.BEValue type)
         {
             int res = (int)MathF.Max(0, attack - Power);
-            if(type == AttackType.Physical)
+            if(type == AttackType.Instance.Physical())
             {
-                DSL.Create(owner.Community, sf => sf.WriteAttack(res / 2, AttackType.Magic, delayRounds: 1)).Compile().Execute(owner.Community);
+                DSL.Create(owner.Community, sf => sf.WriteAttack(res / 2, AttackType.Instance.Magical(), delayRounds: 1)).Compile().Execute(owner.Community);
             }
             return (res, (int)MathF.Min(attack, Power));
         }

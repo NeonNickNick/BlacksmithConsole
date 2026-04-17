@@ -1,4 +1,4 @@
-using Blacksmith.Backend.JudgementLogic.Actor;
+using Blacksmith.Backend.JudgementLogic.Core;
 using Blacksmith.Backend.JudgementLogic.Judgement;
 
 namespace Blacksmith.AI.Strategies
@@ -126,27 +126,27 @@ namespace Blacksmith.AI.Strategies
             int maxDmg = 0;
 
             // Common attacks
-            if (skills.Contains("tear") && res.Check(ResourceType.Space, 1))
+            if (skills.Contains("tear") && res.Check(ResourceType.Instance.Space(), 1))
                 maxDmg = Math.Max(maxDmg, 8);
-            if (skills.Contains("slash") && res.Check(ResourceType.Iron, 2.5f))
+            if (skills.Contains("slash") && res.Check(ResourceType.Instance.Iron(), 2.5f))
                 maxDmg = Math.Max(maxDmg, 5);
-            if (skills.Contains("drill") && res.Check(ResourceType.Iron, 1.5f))
+            if (skills.Contains("drill") && res.Check(ResourceType.Instance.Iron(), 1.5f))
                 maxDmg = Math.Max(maxDmg, 3);
-            if (skills.Contains("stick") && res.Check(ResourceType.Iron, 0.5f))
+            if (skills.Contains("stick") && res.Check(ResourceType.Instance.Iron(), 0.5f))
                 maxDmg = Math.Max(maxDmg, 1);
 
             // Cannon attacks
-            if (skills.Contains("triplestrike") && res.Check(ResourceType.Iron, 3))
+            if (skills.Contains("triplestrike") && res.Check(ResourceType.Instance.Iron(), 3))
                 maxDmg = Math.Max(maxDmg, 11);
-            if (skills.Contains("doublestrike") && res.Check(ResourceType.Iron, 2))
+            if (skills.Contains("doublestrike") && res.Check(ResourceType.Instance.Iron(), 2))
                 maxDmg = Math.Max(maxDmg, 7);
-            if (skills.Contains("strike") && res.Check(ResourceType.Iron, 1))
+            if (skills.Contains("strike") && res.Check(ResourceType.Instance.Iron(), 1))
                 maxDmg = Math.Max(maxDmg, 3);
             if (skills.Contains("cannonbarrel"))
                 maxDmg = Math.Max(maxDmg, 1);
 
             // Driver attacks
-            if (skills.Contains("spaceattack") && res.Check(ResourceType.Space, 1))
+            if (skills.Contains("spaceattack") && res.Check(ResourceType.Instance.Space(), 1))
                 maxDmg = Math.Max(maxDmg, 11);
 
             // BloodSigil attacks

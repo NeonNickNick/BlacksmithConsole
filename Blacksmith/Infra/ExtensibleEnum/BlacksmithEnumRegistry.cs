@@ -5,15 +5,15 @@ namespace Blacksmith.Infra.ExtensibleEnum
         private static Dictionary<Type, BlacksmithEnum> _supportedEnumDict = new();
         public static IReadOnlyDictionary<Type, BlacksmithEnum> SupportedEnumDict 
             => _supportedEnumDict;
-        private static Dictionary<Type, Type>? _EEValueTypeDict = null;
-        public static IReadOnlyDictionary<Type, Type> EEValueTypeDict
+        private static Dictionary<Type, Type>? _BEValueTypeDict = null;
+        public static IReadOnlyDictionary<Type, Type> BEValueTypeDict
         {
             get
             {
-                if (_EEValueTypeDict == null) {
-                    _EEValueTypeDict = SupportedEnumDict.ToDictionary(s => s.Key, s => s.Value.GetEEValueType());
+                if (_BEValueTypeDict == null) {
+                    _BEValueTypeDict = SupportedEnumDict.ToDictionary(s => s.Key, s => s.Value.GetBEValueType());
                 }
-                return _EEValueTypeDict;
+                return _BEValueTypeDict;
             }
         }
         private static List<string> _names = new();

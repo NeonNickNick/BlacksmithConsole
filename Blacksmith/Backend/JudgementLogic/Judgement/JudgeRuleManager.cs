@@ -73,7 +73,7 @@ namespace Blacksmith.Backend.JudgementLogic.Judgement
         {
             {
                 JudgeStage.OnEffectTaking_AfterResolutionWritten,
-                new((player, enemy) => TakeEffects(EffectType.AfterResolutionWritten, player, enemy))
+                new((player, enemy) => TakeEffects(EffectType.Instance.AfterResolutionWritten(), player, enemy))
             },
             {
                 JudgeStage.OnEffectSwaping,
@@ -93,7 +93,7 @@ namespace Blacksmith.Backend.JudgementLogic.Judgement
             },
             {
                 JudgeStage.OnEffectTaking_AfterTransport,
-                new((player, enemy) => TakeEffects(EffectType.AfterTransport, player, enemy))
+                new((player, enemy) => TakeEffects(EffectType.Instance.AfterTransport(), player, enemy))
             },
             {
                 JudgeStage.OnApplyingOthers,
@@ -105,11 +105,11 @@ namespace Blacksmith.Backend.JudgementLogic.Judgement
             },
             {
                 JudgeStage.OnEffectTaking_AfterResult,
-                new((player, enemy) => TakeEffects(EffectType.AfterResult, player, enemy))
+                new((player, enemy) => TakeEffects(EffectType.Instance.AfterResult(), player, enemy))
             }
         };
         #region Default Rules（原有逻辑）
-        private static void TakeEffects(EffectType type, ActorSet player, ActorSet enemy)
+        private static void TakeEffects(EffectType.BEValue type, ActorSet player, ActorSet enemy)
         {
             foreach (var temp in player.ActorList)
                 temp.EffectEntityWork(type);
@@ -127,8 +127,8 @@ namespace Blacksmith.Backend.JudgementLogic.Judgement
         private static void SwapEffects(List<EffectResolution> playerResolutions,
             List<EffectResolution> enemyResolutions)
         {
-            var playerTemp = playerResolutions.Where(e => e.TargetType == EffectTargetType.Enemy || e.DelayRounds == 0).ToList();
-            var enemyTemp = enemyResolutions.Where(e => e.TargetType == EffectTargetType.Enemy || e.DelayRounds == 0).ToList();
+            var playerTemp = playerResolutions.Where(e => e.TargetType == EffectTargetType.Instance.Enemy() || e.DelayRounds == 0).ToList();
+            var enemyTemp = enemyResolutions.Where(e => e.TargetType == EffectTargetType.Instance.Enemy() || e.DelayRounds == 0).ToList();
 
             playerResolutions.RemoveAll(e => playerTemp.Contains(e));
             enemyResolutions.RemoveAll(e => enemyTemp.Contains(e));
@@ -146,8 +146,8 @@ namespace Blacksmith.Backend.JudgementLogic.Judgement
         private static void CancelAttackResolutions(List<AttackResolution> playerResolutions,
             List<AttackResolution> enemyResolutions)
         {
-            playerResolutions.OrderBy(a => -(int)a.Type);
-            enemyResolutions.OrderBy(a => -(int)a.Type);
+            playerResolutions.OrderBy(a => a.Type);
+            enemyResolutions.OrderBy(a => a.Type);
             int playerIndex = 0;
             int enemyIndex = 0;
 
@@ -156,13 +156,13 @@ namespace Blacksmith.Backend.JudgementLogic.Judgement
                 var playerAttack = playerResolutions[playerIndex];
                 var enemyAttack = enemyResolutions[enemyIndex];
 
-                if (playerAttack.Type == AttackType.Real || playerAttack.DelayRounds != 0)
+                if (playerAttack.Type == AttackType.Instance.Real() || playerAttack.DelayRounds != 0)
                 {
                     playerIndex++;
                     continue;
                 }
 
-                if (enemyAttack.Type == AttackType.Real || enemyAttack.DelayRounds != 0)
+                if (enemyAttack.Type == AttackType.Instance.Real() || enemyAttack.DelayRounds != 0)
                 {
                     enemyIndex++;
                     continue;

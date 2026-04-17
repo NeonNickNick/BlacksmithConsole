@@ -1,5 +1,6 @@
 using System.Reflection;
 using System.Runtime.CompilerServices;
+using Blacksmith.Backend.JudgementLogic.Core;
 using Blacksmith.Infra.Attributes;
 namespace Blacksmith.Infra.ExtensibleEnum
 {
@@ -7,7 +8,7 @@ namespace Blacksmith.Infra.ExtensibleEnum
     {
         protected static bool _isOpen = true;
         public static void CloseFactory() => _isOpen = false;
-        public abstract Type GetEEValueType();
+        public abstract Type GetBEValueType();
         public abstract void Create(string name, int priority);
     }
     public abstract class BlacksmithEnum<T> : BlacksmithEnum 
@@ -16,56 +17,56 @@ namespace Blacksmith.Infra.ExtensibleEnum
         //实际上可断言一定是先调用构造函数，此时已经不是null
         public static T Instance { get; private set; } = null!;
         
-        public struct EEValue : IComparable<EEValue>
+        public struct BEValue : IComparable<BEValue>
         {
             private static int _counter = 0;
             private readonly int _uniqueID;
             public readonly int _priority;
-            internal EEValue(int priority)
+            internal BEValue(int priority)
             {
                 if (!_isOpen)
                 {
-                    throw new ArgumentException("EEValue Factory has been closed!");
+                    throw new ArgumentException("BEValue Factory has been closed!");
                 }
                 _uniqueID = _counter++;
                 _priority = priority;
             }
-            public int CompareTo(EEValue other)
+            public int CompareTo(BEValue other)
             {
                 return _priority.CompareTo(other._priority);
             }
-            public static bool operator ==(EEValue left, EEValue right)
+            public static bool operator ==(BEValue left, BEValue right)
             {
                 return left._uniqueID == right._uniqueID;
             }
-            public static bool operator !=(EEValue left, EEValue right)
+            public static bool operator !=(BEValue left, BEValue right)
             {
                 return left._uniqueID != right._uniqueID;
             }
             public override bool Equals(object? obj)
             {
-                return obj is EEValue other && _uniqueID == other._uniqueID;
+                return obj is BEValue other && _uniqueID == other._uniqueID;
             }
             public override int GetHashCode()
             {
                 return _uniqueID.GetHashCode();
             }
         }
-        public override Type GetEEValueType()
+        public override Type GetBEValueType()
         {
-            return typeof(EEValue);
+            return typeof(BEValue);
         }
         public override void Create(string name, int priority)
         {
             if (!_isOpen)
             {
-                throw new ArgumentException("EEValue Factory has been closed!");
+                throw new ArgumentException("BEValue Factory has been closed!");
             }
             //这里选择直接覆盖。程序启动时就已经被构造
             //情况与技能包不同，技能包每次使用都需要创建实例，不便于指定构造参数来应用Modifier
             //因此采用的方法是在构造函数插入一个修改阶段
             //而Enum是全局单例，干脆在初始化阶段就修改
-            _enumDict[name] = new EEValue(priority);
+            _enumDict[name] = new BEValue(priority);
         }
         protected BlacksmithEnum()
         {
@@ -79,7 +80,7 @@ namespace Blacksmith.Infra.ExtensibleEnum
             foreach (var method in methods)
             {
                 var metaData = method.GetCustomAttribute<IsBlacksmithEnumMember>();
-                if (method.ReturnType != typeof(EEValue) ||
+                if (method.ReturnType != typeof(BEValue) ||
                     method.GetParameters().Length != 0 || 
                     metaData == null)
                 {
@@ -89,26 +90,26 @@ namespace Blacksmith.Infra.ExtensibleEnum
                 Create(methodName, metaData.Priority);
             }
         }
-        private static Dictionary<string, EEValue> _enumDict = new();
-        public static EEValue GetEEValue([CallerMemberName] string name = "") => _enumDict[name];
+        private static Dictionary<string, BEValue> _enumDict = new();
+        public static BEValue GetBEValue([CallerMemberName] string name = "") => _enumDict[name];
     }
     public class TestType : BlacksmithEnum<TestType>
     {
         [IsBlacksmithEnumMember(256)]
-        public EEValue Physical() => GetEEValue();
+        public BEValue Physical() => GetBEValue();
 
         [IsBlacksmithEnumMember(128)]
-        public EEValue Magical() => GetEEValue();
+        public BEValue Magical() => GetBEValue();
 
         [IsBlacksmithEnumMember(0)]
-        public EEValue Real() => GetEEValue();
+        public BEValue Real() => GetBEValue();
     }
     //模拟外部程序集
     [IsBlacksmithEnumModifier]
     public static class MyTestEnumExtension
     {
         [IsBlacksmithEnumMember(256)]
-        public static TestType.EEValue Magical(this TestType testType) => TestType.GetEEValue();
+        public static ResourceType.BEValue Magical(this ResourceType testType) => ResourceType.GetBEValue();
     }
 
 }

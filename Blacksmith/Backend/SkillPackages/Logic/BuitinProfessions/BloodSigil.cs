@@ -27,7 +27,7 @@ namespace Blacksmith.Backend.SkillPackages.Logic.BuitinProfessions
                 {
                     source.Focus.Health.LoseHP(4);
                 })
-                .WriteAttack(IncreaseAttack(6), AttackType.Magic)
+                .WriteAttack(IncreaseAttack(6), AttackType.Instance.Magical())
                     .BloodSuck(0.66f);
             return DSL.Create(sc.Self, pen);
         }
@@ -78,7 +78,7 @@ namespace Blacksmith.Backend.SkillPackages.Logic.BuitinProfessions
                 {
                     source.Focus.Health.LoseHP(1);
                 })
-                .WriteAttack(IncreaseAttack(5), AttackType.Magic)
+                .WriteAttack(IncreaseAttack(5), AttackType.Instance.Magical())
                     .BloodSuck(1.5f);
             return DSL.Create(sc.Self, pen);
         }
