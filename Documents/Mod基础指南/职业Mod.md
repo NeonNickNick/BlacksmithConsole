@@ -57,7 +57,7 @@ using DSL = DSLforSkillLogic;
 建议一个技能只有这两句。return DSL.Create(sc.Self, pen)是返回的标准形式。接下来主要看前面。
 pen是一个组合了若干句子的委托，后面直接根据技能效果依次写语句即可：
 ```csharp
-/*伪代码
+/*
 Pen pen = sf => sf
 
 .WriteAttack(power, AttackType, APFactor = 1, delayRounds = 0)//攻击
@@ -68,7 +68,7 @@ Pen pen = sf => sf
 .WriteFree(action) //自由语句，提供了与底层实现交互的方式
 .UseResource(need, ResourceType, ifCommonOnly = false)//使用资源
 .BloodSuck(percent)//百分比吸血
-.LinkJudgeRule("ruleKey") //链接规则变动，不建议使用。打铁作为一个规则对称的游戏，有一些技能必须通过使规则不在对称才能实现。目前该功能尚不完善，唯一可用的方式使LinkJudgeRule("reflection")，效果即技能“转移”。
+.Interupt()//打断资源获取
 
 */
 ```
@@ -90,11 +90,11 @@ namespace Example.Mod{
         }
         */
         //无需写构造函数
-        //必须为实例方法
+        //必须为私有实例方法
         private bool JokeCheck(ISkillContext sc){//方法名必须为$"{技能名}Check"，必须为bool(ISkillContext)。该方法作用在于检查技能是否能够使用
             return sc.Self.Focus.Health.HP > 5 && sc.Self.Focus.Resource.Check(ResourceType.Iron, 1);
         }
-        //必须为实例方法
+        //必须为私有实例方法
         private DSL.SourceFile Joke(ISkillContext sc){//方法名必须为$"{技能名}"，必须为DSL.SourceFile(ISkillContext)。该方法即技能逻辑，建议使用提供的DSL编写
             Pen pen = sf => sf
                 .UseResource(1, ResourceType.Iron)
@@ -126,11 +126,11 @@ namespace Example.Mod{
         }
         */
         //无需写构造函数
-        //必须为实例方法
+        //必须为私有实例方法
         private bool MyProfessionCheck(ISkillContext sc){//方法名必须为$"{技能名}Check"，必须为bool(ISkillContext)
             return sc.Self.Focus.Resource.Check(ResourceType.Iron, 1);
         }
-        //必须为实例方法
+        //必须为私有实例方法
         private DSL.SourceFile MyProfession(ISkillContext sc){//方法名必须为$"技能名"，必须为DSL.SourceFile(ISkillContext)
             Pen pen = sf => sf
                 .UseResource(1, ResourceType.Iron)
@@ -145,6 +145,8 @@ namespace Example.Mod{
 }
 ```
 技能方法和技能校验方法必须为实例方法。对于与技能包状态无关的工具方法建议设为静态，与状态有关的方法名需要避开“Check”与所有可能的技能名，建议给这种方法名加特殊前缀防止偶然重名。
+
+进一步，结合之前的枚举扩展，可以在Mod种扩展防御类型枚举等以及自己定义新的枚举类型。
 
 接下来打包即可。
 

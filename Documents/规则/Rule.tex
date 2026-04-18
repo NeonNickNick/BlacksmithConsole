@@ -20,7 +20,7 @@
 \begin{itemize}
     \item \textbf{游戏模式：}双人同步回合制博弈。
     \item \textbf{动作经济：}每回合双方必须且只能声明打出1个技能。
-    \item \textbf{胜负判定：}初始 10 HP 与 10 Max HP。回合结束时，HP $\le 0$ 则死亡。同回合双死视为平局。
+    \item \textbf{胜负判定：}初始 10 HP 与 10 Max HP。回合结束时，HP <img src="https://render.githubusercontent.com/render/math?math=\bbox[%230d1117]{\color{white}{%5Cle%200}}" /> 则死亡。同回合双死视为平局。
 \end{itemize}
 
 \subsection{回合结算流程}
@@ -34,7 +34,7 @@
     \item \textbf{交锋与伤害阶段：}
     \begin{itemize}
         \item \textbf{对冲：} 双方的攻击按照优先级高在前的顺序 ，1:1 抵消。
-        \item \textbf{突防：} 剩余攻击力依次穿透防守方的：单回合伤减 $\rightarrow$ 装甲 $\rightarrow$ HP。
+        \item \textbf{突防：} 剩余攻击力依次穿透防守方的：单回合伤减 <img src="https://render.githubusercontent.com/render/math?math=\bbox[%230d1117]{\color{white}{%5Crightarrow}}" /> 装甲 <img src="https://render.githubusercontent.com/render/math?math=\bbox[%230d1117]{\color{white}{%5Crightarrow}}" /> HP。
         \item \textbf{结算：} 结算“打断”、“吸血”及“纹章获取”等命中效果。
     \end{itemize}
     \item \textbf{结束阶段：}
@@ -116,7 +116,7 @@
 \end{table}
 
 \subsubsection*{B. 驱动器}
-\textbf{被动 - 时之盾：} 每回合自动产出 1+2n RDEF（$n$ 为当前持有 Time 数量，该被动产出上限为 5 RDEF）。
+\textbf{被动 - 时之盾：} 每回合自动产出 1+2n RDEF（<img src="https://render.githubusercontent.com/render/math?math=\bbox[%230d1117]{\color{white}{n}}" /> 为当前持有 Time 数量，该被动产出上限为 5 RDEF）。
 \begin{table}[h]
 \centering
 \begin{tabular}{lll}
@@ -126,7 +126,7 @@
 空间冲击(n) & n Space & 12n ATK \\
 空时变幻 & 1 Space & 1 Time + 3 RDEF \\
 时空变幻 & 1 Time & 1 Space + 3 RDEF \\
-空间屏障(n) & n Iron & 产出 $-0.5n^2 + 5.5n$ RDEF ($n \le 5$) \\
+空间屏障(n) & n Iron & 产出 <img src="https://render.githubusercontent.com/render/math?math=\bbox[%230d1117]{\color{white}{-0.5n%5E2%20%2B%205.5n}}" /> RDEF (<img src="https://render.githubusercontent.com/render/math?math=\bbox[%230d1117]{\color{white}{n%20%5Cle%205}}" />) \\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -170,7 +170,7 @@
 嗜血 & 2 HP & 下次攻击增加 50\%（向上取整）伤害。 \\
 恢复 & 0 & 回复 2 HP。前提：本回合结算前未受到攻击伤害。 \\
 血之盾 & 1 HP & 获得普通伤减（DEF），数值等于当前剩余 HP 的 40\%（向上取整）。 \\
-狂怒 & 1 HP & 5 MATK。仅在 HP $\le 5$ 时可用。造成伤害的 150\% 转化为 HP 回复。 \\
+狂怒 & 1 HP & 5 MATK。仅在 HP <img src="https://render.githubusercontent.com/render/math?math=\bbox[%230d1117]{\color{white}{%5Cle%205}}" /> 时可用。造成伤害的 150\% 转化为 HP 回复。 \\
 \bottomrule
 \end{tabularx}
 \end{table}
