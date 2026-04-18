@@ -3,10 +3,10 @@ using Blacksmith.AI;
 using Blacksmith.AI.Strategies;
 using Blacksmith.Backend.SkillPackages.Core;
 using Blacksmith.Frontend;
+using Blacksmith.Infra;
 using Blacksmith.Infra.Attributes;
 using Blacksmith.Infra.ExtensibleEnum;
 using Blacksmith.Infra.ExtensibleProfession;
-using Blacksmith.Mod;
 namespace Blacksmith
 {
     public static class Program

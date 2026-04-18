@@ -1,7 +1,7 @@
 using System.Reflection;
 using Blacksmith.Infra.Attributes;
 using Blacksmith.Infra.ExtensibleEnum;
-namespace Blacksmith.Mod
+namespace Blacksmith.Infra
 {
     public static class PluginLoader
     {
