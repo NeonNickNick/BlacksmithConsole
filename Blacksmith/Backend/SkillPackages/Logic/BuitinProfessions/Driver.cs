@@ -18,13 +18,13 @@ namespace Blacksmith.Backend.SkillPackages.Logic.BuitinProfessions
         }
         private bool SpaceAttackCheck(ISkillContext sc)
         {
-            return sc.Self.Focus.Resource.Check(ResourceType.Instance.Space(), 1);
+            return sc.Param > 0 && sc.Self.Focus.Resource.Check(ResourceType.Instance.Space(), sc.Param);
         }
         private DSL.SourceFile SpaceAttack(ISkillContext sc)
         {
             Pen pen = sf => sf
-                .UseResource(1, ResourceType.Instance.Space())
-                .WriteAttack(11, AttackType.Instance.Physical());
+                .UseResource(sc.Param, ResourceType.Instance.Space())
+                .WriteAttack(12 * sc.Param, AttackType.Instance.Physical());
             return DSL.Create(sc.Self, pen);
         }
 
