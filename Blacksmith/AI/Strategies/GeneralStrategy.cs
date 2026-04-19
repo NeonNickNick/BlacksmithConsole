@@ -95,12 +95,12 @@ namespace Blacksmith.AI.Strategies
                 }
             }
 
-            return SampleFromTopK(root.Children);
+            return SampleFromTopK(root.Children, root.State.History.SkillHistory.Count);
         }
-        private (string, int) SampleFromTopK(List<MCTSNode> children)
+        private (string, int) SampleFromTopK(List<MCTSNode> children, int round)
         {
             int k = Math.Min(3, children.Count); // Top-K，可调
-            double temperature = 0.5;            // 温度，越低越贪心
+            double temperature = Math.Max(0, 0.03 * round);            // 温度，越低越贪心
 
             // 按 Q 值排序（比 Visits 更稳定）
             var topK = children

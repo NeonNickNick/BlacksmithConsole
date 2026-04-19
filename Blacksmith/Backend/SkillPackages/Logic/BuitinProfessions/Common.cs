@@ -20,7 +20,7 @@ namespace Blacksmith.Backend.SkillPackages.Logic.BuitinProfessions
             Pen pen = sf => sf.WriteResource(1, ResourceType.Instance.Iron());
             return DSL.Create(sc.Self, pen);
         }
-
+        /*
         private bool StickCheck(ISkillContext sc)
         {
             return sc.Self.Focus.Resource.Check(ResourceType.Instance.Iron(), 0.5f);
@@ -43,7 +43,7 @@ namespace Blacksmith.Backend.SkillPackages.Logic.BuitinProfessions
                 .UseResource(1.5f, ResourceType.Instance.Iron())
                 .WriteAttack(3, AttackType.Instance.Physical());
             return DSL.Create(sc.Self, pen);
-        }
+        }*/
 
         private bool SlashCheck(ISkillContext sc)
         {
@@ -56,7 +56,7 @@ namespace Blacksmith.Backend.SkillPackages.Logic.BuitinProfessions
                 .WriteAttack(5, AttackType.Instance.Physical());
             return DSL.Create(sc.Self, pen);
         }
-
+        /*
         private bool ShieldCheck(ISkillContext sc)
         {
             return sc.Self.Focus.Resource.Check(ResourceType.Instance.Iron(), sc.Param * 0.5f);
@@ -92,7 +92,7 @@ namespace Blacksmith.Backend.SkillPackages.Logic.BuitinProfessions
                 .WriteRecovery(2 + 2 * sc.Param);
             return DSL.Create(sc.Self, pen);
         }
-
+        */
         private bool SpaceCheck(ISkillContext sc)
         {
             return sc.Self.Focus.Resource.Check(ResourceType.Instance.Iron(), 3);
