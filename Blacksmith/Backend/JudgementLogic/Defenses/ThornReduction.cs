@@ -19,7 +19,7 @@ namespace Blacksmith.Backend.JudgementLogic.Defenses
         {
             IsDead = true;
         }
-         public override (int, int) Work(Body source, Body owner, int attack, AttackType.BEValue type)
+        public override (int, int) Work(Body source, Body owner, int attack, AttackType.BEValue type)
         {
             int res = (int)MathF.Max(0, attack - Power);
             int absorbed = (int)MathF.Min(attack, Power);

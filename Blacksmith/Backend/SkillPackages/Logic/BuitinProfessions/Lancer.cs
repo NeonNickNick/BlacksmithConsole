@@ -156,7 +156,7 @@ namespace Blacksmith.Backend.SkillPackages.Logic.BuitinProfessions
                     ModifierOrder.Before,
                     delayRounds: 1)
                 });
-            return DSL.Create(sc.Self, Others(pen));
+            return DSL.Create(sc.Self, pen);
         }
         private void AttackCanceling_Modifier_Before(ActorSet player, ActorSet enemy)
         {

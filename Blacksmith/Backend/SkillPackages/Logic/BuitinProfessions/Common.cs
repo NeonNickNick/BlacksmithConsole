@@ -179,6 +179,7 @@ namespace Blacksmith.Backend.SkillPackages.Logic.BuitinProfessions
             sc.Self.Focus.Skill.AddPackage(new Cannon());
             Pen pen = sf => sf
                 .UseResource(4, ResourceType.Instance.Iron())
+                .WriteDefense(3, new CommonReduction())
                 .WriteFree(source =>
                 {
                     ExcludeAllProfessions(source);
