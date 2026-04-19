@@ -67,18 +67,18 @@ namespace Blacksmith.Backend.SkillPackages.Logic.BuitinProfessions
                     source.Focus.Health.LoseMHP(1);
                 })
                 .WriteDefense(7, new RealReduction())
-                .WriteResource(2, ResourceType.Instance.Iron());
+                .WriteResource(1.5f, ResourceType.Instance.Iron());
             return DSL.Create(sc.Self, pen);
         }
 
         private bool AlchemyCheck(ISkillContext sc)
         {
-            return sc.Self.Focus.Resource.Check(ResourceType.Instance.Iron(), 2);
+            return sc.Self.Focus.Resource.Check(ResourceType.Instance.Iron(), 2.5f);
         }
         private DSL.SourceFile Alchemy(ISkillContext sc)
         {
             Pen pen = sf => sf
-                .UseResource(2, ResourceType.Instance.Iron())
+                .UseResource(2.5f, ResourceType.Instance.Iron())
                 .WriteFree(source =>
                 {
                     source.Focus.Skill.AddSkill("Warlock", "midastouch");
