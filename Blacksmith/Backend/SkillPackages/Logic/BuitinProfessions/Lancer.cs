@@ -21,6 +21,7 @@ namespace Blacksmith.Backend.SkillPackages.Logic.BuitinProfessions
             .WriteRecovery(2);
         private bool _dark = false;
         private Pen _darkPen = sf => sf
+            .WriteFree(source => source.Focus.Health.LoseMHP(1))
             .WriteAttack(1, AttackType.Instance.Real(), delayRounds: 0)
             .WriteAttack(1, AttackType.Instance.Real(), delayRounds: 1);
 
@@ -122,7 +123,7 @@ namespace Blacksmith.Backend.SkillPackages.Logic.BuitinProfessions
         {
             Pen pen = sf => sf
                 .UseResource(_chargeCost, ResourceType.Instance.Iron())
-                .WriteAttack(10 + _chargeCount * 4 + Fire(), AttackType.Instance.Magical());
+                .WriteAttack(9 + _chargeCount * 4 + Fire(), AttackType.Instance.Magical());
             return DSL.Create(sc.Self, Others(pen));
         }
         private bool ChargeCheck(ISkillContext sc)

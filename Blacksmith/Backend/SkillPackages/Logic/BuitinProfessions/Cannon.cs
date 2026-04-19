@@ -21,7 +21,7 @@ namespace Blacksmith.Backend.SkillPackages.Logic.BuitinProfessions
         {
             Pen pen = sf => sf
                 .UseResource(1, ResourceType.Instance.Iron())
-                .WriteAttack(3, AttackType.Instance.Physical());
+                .WriteAttack(4, AttackType.Instance.Physical());
             return DSL.Create(sc.Self, pen);
         }
 
@@ -33,7 +33,7 @@ namespace Blacksmith.Backend.SkillPackages.Logic.BuitinProfessions
         {
             Pen pen = sf => sf
                 .UseResource(2, ResourceType.Instance.Iron())
-                .WriteAttack(7, AttackType.Instance.Physical());
+                .WriteAttack(8, AttackType.Instance.Physical());
             return DSL.Create(sc.Self, pen);
         }
 

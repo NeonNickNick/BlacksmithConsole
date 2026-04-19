@@ -230,13 +230,13 @@ namespace Blacksmith.Backend.SkillPackages.Logic.BuitinProfessions
         }
         private bool LancerCheck(ISkillContext sc)
         {
-            return sc.Self.Focus.Resource.Check(ResourceType.Instance.Iron(), 3);
+            return sc.Self.Focus.Resource.Check(ResourceType.Instance.Iron(), 4);
         }
         private DSL.SourceFile Lancer(ISkillContext sc)
         {
             sc.Self.Focus.Skill.AddPackage(new Lancer());
             Pen pen = sf => sf
-                .UseResource(3, ResourceType.Instance.Iron())
+                .UseResource(4, ResourceType.Instance.Iron())
                 .WriteFree(source =>
                 {
                     ExcludeAllProfessions(source);
