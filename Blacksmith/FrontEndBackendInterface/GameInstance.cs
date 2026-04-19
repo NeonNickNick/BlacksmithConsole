@@ -1,6 +1,7 @@
 using Blacksmith.Backend.Backend.SkillPackages.Logic;
 using Blacksmith.Backend.JudgementLogic.Actor;
 using Blacksmith.Backend.JudgementLogic.Judgement;
+using Blacksmith.Backend.SkillPackages.Logic;
 
 namespace Blacksmith.FrontendBackendInterface
 {
@@ -56,11 +57,11 @@ namespace Blacksmith.FrontendBackendInterface
 
             History.SkillHistory.Add((playerContext, enemyContext));
 
-            var psfs = Player.Focus.Skill.GetPassiveSkill(playerContext);
-            psfs.Add(Player.Focus.Skill.Declare(skillName, playerContext));
+            var psfs = new List<DSLforSkillLogic.SourceFile>(){ Player.Focus.Skill.Declare(skillName, playerContext) }; 
+            psfs.InsertRange(0, Player.Focus.Skill.GetPassiveSkill(playerContext));
 
-            var esfs = Enemy.Focus.Skill.GetPassiveSkill(enemyContext);
-            esfs.Add(Enemy.Focus.Skill.Declare(esn, enemyContext));
+            var esfs = new List<DSLforSkillLogic.SourceFile>() { Enemy.Focus.Skill.Declare(esn, enemyContext) };
+            esfs.InsertRange(0, Enemy.Focus.Skill.GetPassiveSkill(enemyContext));
 
             Judger.Judge(psfs, esfs);
         }

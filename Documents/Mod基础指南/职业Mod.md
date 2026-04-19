@@ -132,12 +132,12 @@ namespace Example.Mod{
         }
         //必须为私有实例方法
         private DSL.SourceFile MyProfession(ISkillContext sc){//方法名必须为$"技能名"，必须为DSL.SourceFile(ISkillContext)
+            sc.Self.Focus.Skill.AddPackage(new MyProfession());//重要，必须写在前面，否则获得职业的那一回合被动技能不生效
             Pen pen = sf => sf
                 .UseResource(1, ResourceType.Iron)
                 .WriteFree(source => 
                 { 
                     Common.ExcludeAllProfessions(source);//重要，因为每局游戏只能有一个职业。这条代码复制即可，否则行为会不符合预期。
-                    source.Focus.Skill.AddPackage(new MyProfession());//重要，否则根本没添加新职业技能。这条代码复制即可
                 });
             return DSL.Create(sc.Self, pen);
         }

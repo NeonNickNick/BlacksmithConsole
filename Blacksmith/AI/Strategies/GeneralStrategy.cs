@@ -219,7 +219,7 @@ namespace Blacksmith.AI.Strategies
             if (early)
             {
                 // 强资源导向
-                resourceScore += enemyIron * 1200;
+                resourceScore += enemyIron * 1200 + Math.Max(0, enemyIron - 4) * 1200;
                 resourceScore += enemySpace * 4000;
                 resourceScore += enemyTime * 3500;
                 resourceScore += enemyMagic * 2000;
@@ -355,6 +355,19 @@ namespace Blacksmith.AI.Strategies
 
             foreach (var name in names)
             {
+                var useless = new List<string>()
+                {
+                    "stick",
+                    "drill",
+                    "recovery",
+                    "shield",
+                    "thornshield",
+                    "mute"
+                };
+                if (useless.Contains(name))
+                {
+                    continue;
+                }
                 for (int i = 0; i <= 5; i++)
                 {
                     if(name != "magicattack" && i > 0)

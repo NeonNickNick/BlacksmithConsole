@@ -20,7 +20,7 @@ namespace Blacksmith.Backend.SkillPackages.Logic.BuitinProfessions
             Pen pen = sf => sf.WriteResource(1, ResourceType.Instance.Iron());
             return DSL.Create(sc.Self, pen);
         }
-        /*
+        
         private bool StickCheck(ISkillContext sc)
         {
             return sc.Self.Focus.Resource.Check(ResourceType.Instance.Iron(), 0.5f);
@@ -43,7 +43,7 @@ namespace Blacksmith.Backend.SkillPackages.Logic.BuitinProfessions
                 .UseResource(1.5f, ResourceType.Instance.Iron())
                 .WriteAttack(3, AttackType.Instance.Physical());
             return DSL.Create(sc.Self, pen);
-        }*/
+        }
 
         private bool SlashCheck(ISkillContext sc)
         {
@@ -56,7 +56,7 @@ namespace Blacksmith.Backend.SkillPackages.Logic.BuitinProfessions
                 .WriteAttack(5, AttackType.Instance.Physical());
             return DSL.Create(sc.Self, pen);
         }
-        /*
+        
         private bool ShieldCheck(ISkillContext sc)
         {
             return sc.Self.Focus.Resource.Check(ResourceType.Instance.Iron(), sc.Param * 0.5f);
@@ -92,7 +92,7 @@ namespace Blacksmith.Backend.SkillPackages.Logic.BuitinProfessions
                 .WriteRecovery(2 + 2 * sc.Param);
             return DSL.Create(sc.Self, pen);
         }
-        */
+        
         private bool SpaceCheck(ISkillContext sc)
         {
             return sc.Self.Focus.Resource.Check(ResourceType.Instance.Iron(), 3);
@@ -160,12 +160,12 @@ namespace Blacksmith.Backend.SkillPackages.Logic.BuitinProfessions
         }
         private DSL.SourceFile Warlock(ISkillContext sc)
         {
+            sc.Self.Focus.Skill.AddPackage(new Warlock());
             Pen pen = sf => sf
                 .UseResource(1, ResourceType.Instance.Iron())
                 .WriteFree(source =>
                 {
                     ExcludeAllProfessions(source);
-                    source.Focus.Skill.AddPackage(new Warlock());
                 });
             return DSL.Create(sc.Self, pen);
         }
@@ -176,12 +176,12 @@ namespace Blacksmith.Backend.SkillPackages.Logic.BuitinProfessions
         }
         private DSL.SourceFile Cannon(ISkillContext sc)
         {
+            sc.Self.Focus.Skill.AddPackage(new Cannon());
             Pen pen = sf => sf
                 .UseResource(4, ResourceType.Instance.Iron())
                 .WriteFree(source =>
                 {
                     ExcludeAllProfessions(source);
-                    source.Focus.Skill.AddPackage(new Cannon());
                 });
             return DSL.Create(sc.Self, pen);
         }
@@ -192,12 +192,12 @@ namespace Blacksmith.Backend.SkillPackages.Logic.BuitinProfessions
         }
         private DSL.SourceFile Driver(ISkillContext sc)
         {
+            sc.Self.Focus.Skill.AddPackage(new Driver());
             Pen pen = sf => sf
                 .UseResource(3, ResourceType.Instance.Iron())
                 .WriteFree(source =>
                 {
                     ExcludeAllProfessions(source);
-                    source.Focus.Skill.AddPackage(new Driver());
                 });
             return DSL.Create(sc.Self, pen);
         }
@@ -208,6 +208,7 @@ namespace Blacksmith.Backend.SkillPackages.Logic.BuitinProfessions
         }
         private DSL.SourceFile BloodSigil(ISkillContext sc)
         {
+            sc.Self.Focus.Skill.AddPackage(new BloodSigil());
             Pen pen = sf => sf
                 .UseResource(7, ResourceType.Instance.Iron())
                 .WriteFree(source =>
@@ -220,8 +221,7 @@ namespace Blacksmith.Backend.SkillPackages.Logic.BuitinProfessions
                         "slash",
                         "tear"
                     };
-                    addition.ForEach(a => source.Focus.Skill.RemoveSkill("common", a));
-                    source.Focus.Skill.AddPackage(new BloodSigil());
+                    addition.ForEach(a => source.Focus.Skill.RemoveSkill(nameof(Common), a));
                     source.Focus.Health.GainMHP(3);
                     source.Focus.Health.GainHP(3);
                 });
@@ -233,23 +233,23 @@ namespace Blacksmith.Backend.SkillPackages.Logic.BuitinProfessions
         }
         private DSL.SourceFile Lancer(ISkillContext sc)
         {
+            sc.Self.Focus.Skill.AddPackage(new Lancer());
             Pen pen = sf => sf
                 .UseResource(3, ResourceType.Instance.Iron())
                 .WriteFree(source =>
                 {
                     ExcludeAllProfessions(source);
-                    source.Focus.Skill.AddPackage(new Lancer());
                 });
             return DSL.Create(sc.Self, pen);
         }
         public static void ExcludeAllProfessions(ActorSet source)
         {
 
-            Professions.ForEach(p => source.Focus.Skill.RemoveSkill("common", p));
+            Professions.ForEach(p => source.Focus.Skill.RemoveSkill(nameof(Common), p));
         }
         public static void ExcludeNone(ActorSet source, string self)
         {
-            source.Focus.Skill.RemoveSkill("common", self);
+            source.Focus.Skill.RemoveSkill(nameof(Common), self);
         }
     }
     public static class ReflectRule

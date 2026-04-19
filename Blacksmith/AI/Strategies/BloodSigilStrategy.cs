@@ -1,5 +1,6 @@
 using Blacksmith.Backend.JudgementLogic.Core;
 using Blacksmith.Backend.JudgementLogic.Judgement;
+using Blacksmith.Backend.SkillPackages.Logic.BuitinProfessions;
 using Blacksmith.FrontendBackendInterface;
 
 namespace Blacksmith.AI.Strategies
@@ -34,7 +35,7 @@ namespace Blacksmith.AI.Strategies
                 return ("bloodrage", 0);
 
             var packages = opponent.Focus.Skill.GetActivePackageNames();
-            string profession = packages.FirstOrDefault(p => p != "common") ?? "common";
+            string profession = packages.FirstOrDefault(p => p != nameof(Common)) ?? nameof(Common);
             int maxDmg = GetMaxSingleTurnDamage(opponent);
             bool killable = maxDmg >= hp + 2;
 

@@ -27,7 +27,11 @@ namespace Blacksmith.Backend.JudgementLogic.Judgement
         }
         private List<Intent> Compile(List<DSL.SourceFile> sourceFiles)
         {
-            return sourceFiles.Select(s => s.Compile(this)).ToList();
+            var passive = sourceFiles[0];
+            sourceFiles.RemoveAt(0);
+            var skillIntents = sourceFiles.Select(s => s.Compile(this)).ToList();
+            skillIntents.Insert(0, passive.Compile(this));
+            return skillIntents;
         }
         public void Judge(List<DSL.SourceFile> playerSfs, List<DSL.SourceFile> enemySfs)
         {
