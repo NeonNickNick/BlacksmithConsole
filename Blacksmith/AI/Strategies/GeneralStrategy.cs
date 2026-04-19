@@ -14,8 +14,8 @@ namespace Blacksmith.AI.Strategies
         private Random _random = new Random();
 
         // MCTS 参数
-        private const int MaxIterations = 1500;
-        private const int RolloutDepth = 30;
+        private const int MaxIterations = 5000;
+        private const int RolloutDepth = 20;
         private const double UctConstant = 1.414;
 
         public void Init(GameInstance gameInstance)
@@ -95,13 +95,50 @@ namespace Blacksmith.AI.Strategies
                 }
             }
 
-            var best = root.Children
-                .OrderByDescending(c => c.Visits)
-                .First();
-
-            return best.Action!.Value;
+            return SampleFromTopK(root.Children);
         }
+        private (string, int) SampleFromTopK(List<MCTSNode> children)
+        {
+            int k = Math.Min(3, children.Count); // Top-K，可调
+            double temperature = 0.5;            // 温度，越低越贪心
 
+            // 按 Q 值排序（比 Visits 更稳定）
+            var topK = children
+                .OrderByDescending(c => c.Wins / (c.Visits + 1e-6))
+                .Take(k)
+                .ToList();
+
+            // Softmax
+            double maxScore = topK.Max(c => c.Wins / (c.Visits + 1e-6));
+
+            List<double> weights = new();
+            double sum = 0;
+
+            foreach (var c in topK)
+            {
+                double q = c.Wins / (c.Visits + 1e-6);
+
+                // 数值稳定 + 温度
+                double w = Math.Exp((q - maxScore) / temperature);
+                weights.Add(w);
+                sum += w;
+            }
+
+            // 采样
+            double r = _random.NextDouble() * sum;
+            double acc = 0;
+
+            for (int i = 0; i < topK.Count; i++)
+            {
+                acc += weights[i];
+                if (r <= acc)
+                {
+                    return topK[i].Action!.Value;
+                }
+            }
+
+            return topK.Last().Action!.Value;
+        }
         // =========================
         // MCTS 节点
         // =========================
@@ -320,6 +357,10 @@ namespace Blacksmith.AI.Strategies
             {
                 for (int i = 0; i <= 5; i++)
                 {
+                    if(name != "magicattack" && i > 0)
+                    {
+                        break;
+                    }
                     SkillDeclareResult r;
 
                     if (actor == instance.Player)

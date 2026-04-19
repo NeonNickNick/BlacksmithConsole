@@ -35,6 +35,7 @@ namespace Blacksmith.Backend.SkillPackages.Logic.BuitinProfessions
         private DSL.SourceFile MagicAttack(ISkillContext sc)
         {
             Pen pen = sf => sf
+                .UseResource(sc.Param, ResourceType.Instance.Magic())
                 .WriteAttack(2 * sc.Param, AttackType.Instance.Physical(), delayRounds: 0)
                 .WriteAttack(2 * sc.Param, AttackType.Instance.Physical(), delayRounds: 1)
                 .WriteAttack(2 * sc.Param, AttackType.Instance.Physical(), delayRounds: 2);
@@ -80,8 +81,8 @@ namespace Blacksmith.Backend.SkillPackages.Logic.BuitinProfessions
                 .UseResource(2, ResourceType.Instance.Iron())
                 .WriteFree(source =>
                 {
-                    source.Focus.Skill.AddSkill("warlock", "midastouch");
-                    source.Focus.Skill.RemoveSkill("warlock", "alchemy");
+                    source.Focus.Skill.AddSkill("Warlock", "midastouch");
+                    source.Focus.Skill.RemoveSkill("Warlock", "alchemy");
                 });
             return DSL.Create(sc.Self, pen);
         }
