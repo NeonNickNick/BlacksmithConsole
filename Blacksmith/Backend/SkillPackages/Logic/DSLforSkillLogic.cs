@@ -211,7 +211,7 @@ namespace Blacksmith.Backend.SkillPackages.Logic
                     };
                     resolution.Execute = (ActorSet target) =>
                     {
-                        target.Focus.Resource.Gain(resolution.Type, (int)resolution.Power);
+                        target.Focus.Resource.Gain(resolution.Type, resolution.Power);
                     };
                     source.Focus.TurnContext.WriteResolution(resolution);
                 }, SentenceType.Resource, StructureType.Main));
