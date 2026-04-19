@@ -3,3 +3,6 @@ Blacksmith/bin/
 Blacksmith/obj/
 Blacksmith/countline.py
 dick.py
+.vscode/settings.json
+.vscode/tasks.json
+.vscode/launch.json

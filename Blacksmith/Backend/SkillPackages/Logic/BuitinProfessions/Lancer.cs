@@ -21,8 +21,8 @@ namespace Blacksmith.Backend.SkillPackages.Logic.BuitinProfessions
             .WriteRecovery(2);
         private bool _dark = false;
         private Pen _darkPen = sf => sf
-            .WriteAttack(1, AttackType.Instance.Real(), 0)
-            .WriteAttack(1, AttackType.Instance.Real(), 1);
+            .WriteAttack(1, AttackType.Instance.Real(), delayRounds: 0)
+            .WriteAttack(1, AttackType.Instance.Real(), delayRounds: 1);
 
 
         private int Fire()

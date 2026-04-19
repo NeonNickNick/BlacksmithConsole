@@ -51,6 +51,14 @@ namespace Blacksmith.Infra.ExtensibleEnum
             {
                 return _uniqueID.GetHashCode();
             }
+            public override string ToString()   //用来显示可读名字
+            {
+                foreach (var kvp in _enumDict)
+                {
+                    if (kvp.Value._uniqueID == _uniqueID) return kvp.Key;
+                }
+                return base.ToString() ?? "";
+            }
         }
         public override Type GetBEValueType()
         {
