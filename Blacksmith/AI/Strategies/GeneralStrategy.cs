@@ -7,19 +7,73 @@ using Blacksmith.FrontendBackendInterface;
 
 namespace Blacksmith.AI.Strategies
 {
+    public class GeneralStrategyParams
+    {
+        public double TemperatureCoefficient { get; set; } = 0.03; // 原 0.03 * round
 
+        // 终局奖励/惩罚
+        public double TerminalWinScore { get; set; } = 1e9;
+        public double TerminalLoseScore { get; set; } = -1e9;
+
+        // ========== 早期资源权重 ==========
+        public double EarlyIronWeight { get; set; } = 1200;
+        public double EarlyExcessIronWeight { get; set; } = 1200;     // 超过4铁时的额外奖励
+        public double EarlySpaceWeight { get; set; } = 4000;
+        public double EarlyTimeWeight { get; set; } = 3500;
+        public double EarlyMagicWeight { get; set; } = 2000;
+        public double EarlyIronOverstockPenalty { get; set; } = 80;   // 超过5铁的惩罚
+
+        // ========== 中期资源权重 ==========
+        public double MidIronWeight { get; set; } = 60;
+        public double MidSpaceWeight { get; set; } = 200;
+        public double MidTimeWeight { get; set; } = 180;
+        public double MidMagicWeight { get; set; } = 120;
+
+        // ========== 后期资源权重 ==========
+        public double LateIronWeight { get; set; } = 20;
+        public double LateSpaceWeight { get; set; } = 50;
+        public double LateTimeWeight { get; set; } = 50;
+        public double LateMagicWeight { get; set; } = 30;
+
+        // ========== 职业相关 ==========
+        public double HaveProfessionBonus { get; set; } = 500;
+        public double EnemyHasProfessionPenalty { get; set; } = -800;
+        public double IronDeficitPenaltyWhenEnemyHasProfession { get; set; } = -300;
+        public double IronDeficitPenaltyWhenBothNoProfession { get; set; } = -1000;
+        public double IronDeficitThreshold { get; set; } = 2;         // 铁差阈值
+
+        // ========== 攻击策略权重 ==========
+        public double EarlyUnnecessaryAttackPenaltyMultiplier { get; set; } = 30;    // (100 - HP) * 30
+        public double MidAdvantageAttackBonusMultiplier { get; set; } = 2;           // hpDiff * 2
+        public double MidUnnecessaryAttackPenaltyMultiplier { get; set; } = 10;      // (100 - HP) * 10
+        public double WithProfessionDamageBonusMultiplier { get; set; } = 20;        // (100 - HP) * 20
+        public double WithProfessionHpDiffBonusMultiplier { get; set; } = 5;         // hpDiff * 5
+        public double HpAdvantageThreshold { get; set; } = 20;                       // hpDiff > 20 才算优势
+
+        // ========== 回合节奏 ==========
+        public double EarlyRoundBonusPerRound { get; set; } = 1;
+        public double LateRoundPenaltyPerRound { get; set; } = 4;
+    }
     public class GeneralStrategy : IAIStrategy
     {
+        private readonly GeneralStrategyParams _params;
+        private GameInstance _main = null!;
+        private static ThreadLocal<Random> _random = new(() => new Random(Guid.NewGuid().GetHashCode()));
+
         public string Name => "General";
 
-        private GameInstance _main = null!;
-        private static ThreadLocal<Random> _random =
-    new ThreadLocal<Random>(() => new Random(Guid.NewGuid().GetHashCode()));
-
-        // MCTS 参数
-        private const int MaxIterations = 5000;
-        private const int RolloutDepth = 20;
-        private const double UctConstant = 1.414;
+        public GeneralStrategy(GeneralStrategyParams? parameters = null)
+        {
+            _params = parameters ?? new GeneralStrategyParams();
+            if (parameters == null)
+            {
+                Console.WriteLine($"未找到参数文件，使用默认参数");
+            }
+            else
+            {
+                Console.WriteLine($"已加载参数文件");
+            }
+        }
 
         public void Init(GameInstance gameInstance)
         {
@@ -29,7 +83,6 @@ namespace Blacksmith.AI.Strategies
         public (string skillName, int param) ChooseSkill(ActorSet self, ActorSet opponent)
         {
             int threadCount = Math.Min(8, Environment.ProcessorCount);
-
             var tasks = new List<Task<List<MCTSNode>>>();
 
             for (int t = 0; t < threadCount; t++)
@@ -37,45 +90,39 @@ namespace Blacksmith.AI.Strategies
                 tasks.Add(Task.Run(() =>
                 {
                     var localGame = _main.DeepCopy();
-                    return RunMCTS(localGame, MaxIterations / threadCount);
+                    return RunMCTS(localGame, 4000 / threadCount);
                 }));
             }
 
             Task.WaitAll(tasks.ToArray());
 
-            // ===== 合并 root children =====
+            // 合并 root children
             var merged = new Dictionary<(string, int), (double wins, int visits)>();
-
             foreach (var task in tasks)
             {
                 foreach (var child in task.Result)
                 {
                     var action = child.Action!.Value;
-
                     if (!merged.ContainsKey(action))
                         merged[action] = (0, 0);
 
                     var v = merged[action];
                     v.wins += child.Wins;
                     v.visits += child.Visits;
-
                     merged[action] = v;
                 }
             }
 
-            // 转回 node 结构（给你原来的采样函数用）
-            var finalChildren = merged.Select(kv =>
+            var finalChildren = merged.Select(kv => new MCTSNode(null!, null!, new List<(string, int)>())
             {
-                return new MCTSNode(null!, null!, new List<(string, int)>())
-                {
-                    Action = kv.Key,
-                    Wins = kv.Value.wins,
-                    Visits = kv.Value.visits
-                };
+                Action = kv.Key,
+                Wins = kv.Value.wins,
+                Visits = kv.Value.visits
             }).ToList();
 
             return SampleFromTopK(finalChildren, _main.History.SkillHistory.Count);
         }
+
         private List<MCTSNode> RunMCTS(GameInstance rootState, int iterations)
         {
             var rootActions = GetAllAvailable(rootState.Enemy, rootState);
@@ -98,34 +145,27 @@ namespace Blacksmith.AI.Strategies
                     node.UntriedActions.RemoveAt(0);
 
                     var nextState = node.State.DeepCopy();
-
                     var playerAction = RandomAction(nextState.Player, nextState);
-
                     nextState.Declare(
                         playerAction.Item1, playerAction.Item2,
                         action.Item1, action.Item2
                     );
 
                     var nextActions = GetAllAvailable(nextState.Enemy, nextState);
-
-                    var child = new MCTSNode(nextState, node, nextActions);
-                    child.Action = action;
-
+                    var child = new MCTSNode(nextState, node, nextActions) { Action = action };
                     node.Children.Add(child);
                     node = child;
                 }
 
                 // Rollout
                 var simState = node.State.DeepCopy();
-
-                for (int d = 0; d < RolloutDepth; d++)
+                for (int d = 0; d < 20; d++)
                 {
                     if (IsTerminal(simState))
                         break;
 
                     var p = RandomAction(simState.Player, simState);
                     var e = RandomAction(simState.Enemy, simState);
-
                     simState.Declare(p.Item1, p.Item2, e.Item1, e.Item2);
                 }
 
@@ -142,61 +182,48 @@ namespace Blacksmith.AI.Strategies
 
             return root.Children;
         }
+
         private (string, int) SampleFromTopK(List<MCTSNode> children, int round)
         {
-            int k = Math.Min(3, children.Count); // Top-K，可调
-            double temperature = Math.Max(0, 0.03 * round);            // 温度，越低越贪心
+            int k = Math.Min(2, children.Count);
+            double temperature = Math.Max(0, _params.TemperatureCoefficient * round);
 
-            // 按 Q 值排序（比 Visits 更稳定）
             var topK = children
                 .OrderByDescending(c => c.Wins / (c.Visits + 1e-6))
                 .Take(k)
                 .ToList();
 
-            // Softmax
             double maxScore = topK.Max(c => c.Wins / (c.Visits + 1e-6));
 
             List<double> weights = new();
             double sum = 0;
-
             foreach (var c in topK)
             {
                 double q = c.Wins / (c.Visits + 1e-6);
-
-                // 数值稳定 + 温度
                 double w = Math.Exp((q - maxScore) / temperature);
                 weights.Add(w);
                 sum += w;
             }
 
-            // 采样
             double r = _random.Value!.NextDouble() * sum;
             double acc = 0;
-
             for (int i = 0; i < topK.Count; i++)
             {
                 acc += weights[i];
                 if (r <= acc)
-                {
                     return topK[i].Action!.Value;
-                }
             }
-
             return topK.Last().Action!.Value;
         }
-
 
         private class MCTSNode
         {
             public GameInstance State;
             public MCTSNode? Parent;
             public List<MCTSNode> Children = new();
-
             public (string skill, int param)? Action;
-
             public int Visits = 0;
             public double Wins = 0;
-
             public List<(string, int)> UntriedActions;
 
             public MCTSNode(GameInstance state, MCTSNode? parent, List<(string, int)> actions)
@@ -213,7 +240,7 @@ namespace Blacksmith.AI.Strategies
             {
                 double mean = child.Wins / (child.Visits + 1e-6);
                 double uct = mean +
-                    UctConstant * Math.Sqrt(Math.Log(node.Visits + 1) / (child.Visits + 1e-6));
+                    MathF.Sqrt(2) * Math.Sqrt(Math.Log(node.Visits + 1) / (child.Visits + 1e-6));
                 return uct;
             }).First();
         }
@@ -238,130 +265,86 @@ namespace Blacksmith.AI.Strategies
 
             int round = state.History.SkillHistory.Count;
 
-            // ===== 终局 =====
-            if (enemyHP <= 0) return -1e9;
-            if (playerHP <= 0) return 1e9;
+            // 终局
+            if (enemyHP <= 0) return _params.TerminalLoseScore;
+            if (playerHP <= 0) return _params.TerminalWinScore;
 
             double score = 0;
 
-            // ===== 阶段划分 =====
-            bool early = round < 7;
-            bool mid = round >= 7 && round < 15;
+            // 阶段划分
+            bool early = round < 8;
+            bool mid = round >= 8 && round < 15;
             bool late = round >= 15;
 
-            // =========================
-            // 1️⃣ 资源系统（核心）
-            // =========================
-
+            // 1️⃣ 资源系统
             double resourceScore = 0;
-
             if (early)
             {
-                // 强资源导向
-                resourceScore += enemyIron * 1200 + Math.Max(0, enemyIron - 4) * 1200;
-                resourceScore += enemySpace * 4000;
-                resourceScore += enemyTime * 3500;
-                resourceScore += enemyMagic * 2000;
-
-                // ❗ 防止囤积过量（边际递减）
-                resourceScore -= Math.Max(0, enemyIron - 5) * 80;
+                resourceScore += enemyIron * _params.EarlyIronWeight;
+                resourceScore += Math.Max(0, enemyIron - 4) * _params.EarlyExcessIronWeight;
+                resourceScore += enemySpace * _params.EarlySpaceWeight;
+                resourceScore += enemyTime * _params.EarlyTimeWeight;
+                resourceScore += enemyMagic * _params.EarlyMagicWeight;
+                resourceScore -= Math.Max(0, enemyIron - 5) * _params.EarlyIronOverstockPenalty;
             }
             else if (mid)
             {
-                // 资源仍重要，但降低权重
-                resourceScore += enemyIron * 60;
-                resourceScore += enemySpace * 200;
-                resourceScore += enemyTime * 180;
-                resourceScore += enemyMagic * 120;
+                resourceScore += enemyIron * _params.MidIronWeight;
+                resourceScore += enemySpace * _params.MidSpaceWeight;
+                resourceScore += enemyTime * _params.MidTimeWeight;
+                resourceScore += enemyMagic * _params.MidMagicWeight;
             }
             else // late
             {
-                // 后期资源价值很低（鼓励用掉）
-                resourceScore += enemyIron * 20;
-                resourceScore += enemySpace * 50;
-                resourceScore += enemyTime * 50;
-                resourceScore += enemyMagic * 30;
+                resourceScore += enemyIron * _params.LateIronWeight;
+                resourceScore += enemySpace * _params.LateSpaceWeight;
+                resourceScore += enemyTime * _params.LateTimeWeight;
+                resourceScore += enemyMagic * _params.LateMagicWeight;
             }
-
             score += resourceScore;
 
-            // =========================
-            // 2️⃣ 职业系统（关键战略点）
-            // =========================
-
+            // 2️⃣ 职业系统
             if (haveProfession)
-            {
-                score += 500; // 巨大优势
-            }
+                score += _params.HaveProfessionBonus;
 
             if (playerHaveProfession && !haveProfession)
             {
-                score -= 800; // 强惩罚
-
-                // 如果资源还不够反制 → 更糟
-                if (enemyIron - playerIron < 2)
-                {
-                    score -= 300;
-                }
+                score += _params.EnemyHasProfessionPenalty;
+                if (enemyIron - playerIron < _params.IronDeficitThreshold)
+                    score += _params.IronDeficitPenaltyWhenEnemyHasProfession;
             }
+
             if (!playerHaveProfession && !haveProfession)
             {
                 if (enemyIron - playerIron < 0)
-                {
-                    score -= 1000;
-                }
+                    score += _params.IronDeficitPenaltyWhenBothNoProfession;
             }
 
-            // =========================
-            // 3️⃣ 攻击策略（严格约束）
-            // =========================
-
+            // 3️⃣ 攻击策略
             double hpDiff = enemyHP - playerHP;
-
             if (!haveProfession)
             {
-                // ❗ 未拿职业：禁止无意义攻击
                 if (early)
-                {
-                    // 早期：打人是负收益
-                    score -= (100 - playerHP) * 30;
-                }
+                    score -= (100 - playerHP) * _params.EarlyUnnecessaryAttackPenaltyMultiplier;
                 else if (mid)
                 {
-                    // 中期：只有明显优势才允许攻击
-                    if (hpDiff > 20)
-                    {
-                        score += hpDiff * 2;
-                    }
+                    if (hpDiff > _params.HpAdvantageThreshold)
+                        score += hpDiff * _params.MidAdvantageAttackBonusMultiplier;
                     else
-                    {
-                        score -= (100 - playerHP) * 10;
-                    }
+                        score -= (100 - playerHP) * _params.MidUnnecessaryAttackPenaltyMultiplier;
                 }
             }
             else
             {
-                // 有职业：全面进攻
-                score += (100 - playerHP) * 20;
-                score += hpDiff * 5;
+                score += (100 - playerHP) * _params.WithProfessionDamageBonusMultiplier;
+                score += hpDiff * _params.WithProfessionHpDiffBonusMultiplier;
             }
 
-            // =========================
-            // 4️⃣ 回合节奏（防止拖延）
-            // =========================
-
+            // 4️⃣ 回合节奏
             if (early)
-            {
-                score += round * 1; // 轻微
-            }
-            else if (mid)
-            {
-                
-            }
-            else
-            {
-                score -= round * 4; // 后期必须结束
-            }
+                score += round * _params.EarlyRoundBonusPerRound;
+            else if (late)
+                score -= round * _params.LateRoundPenaltyPerRound;
 
             return score;
         }
@@ -369,7 +352,7 @@ namespace Blacksmith.AI.Strategies
         private bool IsTerminal(GameInstance state)
         {
             return state.Enemy.Focus.Health.HP <= 0 ||
-                   state.Player.Focus.Health.HP <= 0;
+                    state.Player.Focus.Health.HP <= 0;
         }
 
         private (string, int) RandomAction(ActorSet actor, GameInstance instance)
@@ -377,54 +360,35 @@ namespace Blacksmith.AI.Strategies
             var actions = GetAllAvailable(actor, instance);
             if (actions.Count == 0)
                 return ("", 0);
-
             return actions[_random.Value!.Next(actions.Count)];
         }
+
         private List<(string, int)> GetAllAvailable(ActorSet actor, GameInstance instance)
         {
             List<(string, int)> res = new();
-
             var names = actor.Focus.Skill.GetAvailableSkillNames();
 
             foreach (var name in names)
             {
-                var useless = new List<string>()
-                {
-                    "stick",
-                    "drill",
-                    "recovery",
-                    "shield",
-                    //"thornshield",
-                    "mute"
-                };
+                var useless = new List<string>() { "stick", "drill", "recovery", "shield", "thornshield", "mute" };
                 if (useless.Contains(name))
-                {
                     continue;
-                }
+
                 for (int i = 0; i <= 5; i++)
                 {
-                    if(name != "magicattack" && name != "spaceattack" && i > 0)
-                    {
+                    if (name != "magicattack" && name != "spaceattack" && i > 0)
                         break;
-                    }
-                    SkillDeclareResult r;
 
-                    if (actor == instance.Player)
-                        r = instance.TryDeclare(name, i);
-                    else
-                        r = instance.ETryDeclare(name, i);
+                    SkillDeclareResult r = (actor == instance.Player)
+                        ? instance.TryDeclare(name, i)
+                        : instance.ETryDeclare(name, i);
 
                     if (r == SkillDeclareResult.Success)
-                    {
                         res.Add((name, i));
-                    }
                     else if (i > 0)
-                    {
                         break;
-                    }
                 }
             }
-
             return res;
         }
     }

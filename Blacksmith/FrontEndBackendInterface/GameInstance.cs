@@ -23,6 +23,12 @@ namespace Blacksmith.FrontendBackendInterface
         public ActorSet Enemy { get; private set; }
         public Judger Judger { get; private set; }
         public GameHistory History { get; private set; }
+        public void Swap()
+        {
+            (Player, Enemy) = (Enemy, Player);
+            Judger.Swap();
+            History.Swap();
+        }
         public GameInstance()
         {
             Player = new();

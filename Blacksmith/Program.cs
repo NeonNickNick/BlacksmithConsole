@@ -1,5 +1,6 @@
 using System.Reflection;
 using Blacksmith.AI;
+using Blacksmith.AI.NaturalSelection;
 using Blacksmith.AI.Strategies;
 using Blacksmith.Backend.SkillPackages.Core;
 using Blacksmith.Frontend;
@@ -16,11 +17,20 @@ namespace Blacksmith
             PluginLoader.Initialize(AppContext.BaseDirectory);
             LoadBlacksmithEnumModifierPlugins();
             LoadProfessionPlugins();
-
+            //Selector.StartSelect();
+            GeneralStrategyParams? param = null;
+            try
+            {
+                param = Selector.LoadFromFile<GeneralStrategyParams>("data.json");
+            }
+            catch
+            {
+                param = null;
+            }
             List<IAIStrategy> strategies = new()
             {
                 new BloodSigilStrategy(),
-                new GeneralStrategy()
+                new GeneralStrategy(param)
             };
             ConsoleFrontend.Start(strategies);
         }

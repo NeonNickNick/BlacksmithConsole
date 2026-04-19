@@ -6,14 +6,18 @@ namespace Blacksmith.Backend.JudgementLogic.Judgement
     using DSL = DSLforSkillLogic;
     public class Judger
     {
-        public ActorSet Player { get; }
-        public ActorSet Enemy { get; }
+        public ActorSet Player { get; private set; }
+        public ActorSet Enemy { get; private set; }
         public JudgeRuleManager JudgeRuleManager { get; }
 
         private List<Intent> _playerIntents = new();
         private List<Intent> _enemyIntents = new();
 
         private Action _onJudge;
+        public void Swap()
+        {
+            (Player, Enemy) = (Enemy, Player);
+        }
         public Judger(ActorSet player, ActorSet enemy)
         {
             Player = player;
