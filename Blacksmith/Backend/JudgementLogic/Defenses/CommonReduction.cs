@@ -8,7 +8,7 @@ namespace Blacksmith.Backend.JudgementLogic.Defenses
         public override int Power { get; set; } = 0;
         public override bool CanMerge { get; set; } = false;
         public override bool IsDead { get; set; } = false;
-      
+
         public override void Merge(DefenseBase addition)
         {
             //不会被调用

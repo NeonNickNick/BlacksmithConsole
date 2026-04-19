@@ -28,19 +28,19 @@ namespace Blacksmith.Infra.ExtensibleProfession
         }
         public static void AddModeOnInit(SkillPackageBase package)
         {
-            if(_modifiers.TryGetValue(package.GetType().Name, out var modifiers))
+            if (_modifiers.TryGetValue(package.GetType().Name, out var modifiers))
             {
                 foreach (var modifierOrigin in modifiers)
                 {
                     var type = modifierOrigin.GetType();
                     SkillPackageBase modifier = (SkillPackageBase)Activator.CreateInstance(type)!;
                     package.AvailableSkillNames.AddRange(modifier.AvailableSkillNames);
-                    foreach(var kv in modifier.SkillChecker)
+                    foreach (var kv in modifier.SkillChecker)
                     {
                         package.SkillChecker[kv.Key] = kv.Value;
                     }
-                    foreach (var kv in modifier.SkillSourceFileGenerator) 
-                    { 
+                    foreach (var kv in modifier.SkillSourceFileGenerator)
+                    {
                         package.SkillSourceFileGenerator[kv.Key] = kv.Value;
                     }
                 }

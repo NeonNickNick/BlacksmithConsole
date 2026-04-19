@@ -7,6 +7,7 @@ namespace Blacksmith.Backend.JudgementLogic.Judgement
 {
     public class JudgeRuleManager
     {
+        DynamicJudgeRulePool _dynamicPool = new();
         public class StageRuleContainer
         {
             public class RuleUnit
@@ -16,7 +17,7 @@ namespace Blacksmith.Backend.JudgementLogic.Judgement
                 public Action<ActorSet, ActorSet> Rule;
                 public void TimePass()
                 {
-                    if(DelayRounds > 0)
+                    if (DelayRounds > 0)
                     {
                         DelayRounds--;
                     }
@@ -122,7 +123,7 @@ namespace Blacksmith.Backend.JudgementLogic.Judgement
                 JudgeStage.OnAttackSwaping,
                 new(SwapAttacks)
             },
-            { 
+            {
                 JudgeStage.OnApplyingEffect,
                 new(ApplyEffect)
             },
@@ -274,9 +275,13 @@ namespace Blacksmith.Backend.JudgementLogic.Judgement
 
             return result;
         }
+        public void RegistJudgeRuleDynamic(DynamicJudgeRuleName.BEValue name, List<Mutation> mutations)
+        {
+            _dynamicPool.RegistDynamic(name, mutations);
+        }
         public void AddJudgeRule(ActorSet source, DynamicJudgeRuleName.BEValue name)
         {
-            List<Mutation> mutations = DynamicJudgeRulePool.Query(source, name);
+            List<Mutation> mutations = _dynamicPool.Query(source, name);
             foreach (var mutation in mutations)
             {
                 StageRuleContainer.RuleUnit unit = new(mutation.RemainingRounds, mutation.DelayRounds, mutation.JudgeRule);

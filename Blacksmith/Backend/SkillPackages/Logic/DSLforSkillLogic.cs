@@ -40,10 +40,10 @@ namespace Blacksmith.Backend.SkillPackages.Logic
                 }
             }
 
-            protected readonly ActorSet _owner; 
+            protected readonly ActorSet _owner;
             protected List<Sentence> _sentences = new();
             protected Stack<Sentence> _rhetoricCache = new();
-            protected List<DynamicJudgeRuleName.BEValue> _mutationsOnCompile = new();
+            protected Dictionary<DynamicJudgeRuleName.BEValue, List<Mutation>> _mutationsOnCompile = new();
             protected SourceFile(SourceFile origin)
             {
                 _owner = origin._owner;
@@ -68,9 +68,10 @@ namespace Blacksmith.Backend.SkillPackages.Logic
                 Action<ActorSet> result = (a) => { };
                 if (judger != null)
                 {
-                    foreach (var key in _mutationsOnCompile)
+                    foreach (var pair in _mutationsOnCompile)
                     {
-                        judger.JudgeRuleManager.AddJudgeRule(_owner, key);
+                        judger.JudgeRuleManager.RegistJudgeRuleDynamic(pair.Key, pair.Value);
+                        judger.JudgeRuleManager.AddJudgeRule(_owner, pair.Key);
                     }
                 }
                 foreach (var sentence in sentences)
@@ -127,7 +128,7 @@ namespace Blacksmith.Backend.SkillPackages.Logic
                             };
                             foreach (var temp in defenses)
                             {
-                                if(!ifHitArmor && armorList.Contains(temp.Type))
+                                if (!ifHitArmor && armorList.Contains(temp.Type))
                                 {
                                     ifHitArmor = true;
                                     resolution.RunStage(AttackStage.OnHitArmorFirstTime, main);
@@ -162,7 +163,7 @@ namespace Blacksmith.Backend.SkillPackages.Logic
                 }, SentenceType.Attack, StructureType.Main));
                 return new(this);
             }
-            
+
             public SourceFile WriteRecovery(int power)
             {
                 _sentences.Add(new((ActorSet source) =>
@@ -245,8 +246,7 @@ namespace Blacksmith.Backend.SkillPackages.Logic
                 DynamicJudgeRuleName.BEValue ruleKey,
                 List<Mutation> mutations)
             {
-                _mutationsOnCompile.Add(ruleKey);
-                DynamicJudgeRulePool.RegistDynamic(ruleKey, mutations);
+                _mutationsOnCompile[ruleKey] = mutations;
                 return this;
             }
         }

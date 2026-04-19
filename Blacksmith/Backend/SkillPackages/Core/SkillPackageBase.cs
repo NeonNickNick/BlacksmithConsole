@@ -8,7 +8,7 @@ namespace Blacksmith.Backend.SkillPackages.Core
     using DSL = DSLforSkillLogic;
     public interface ISkillPackage
     {
-       // public string Name { get; }
+        // public string Name { get; }
         public List<string> AvailableSkillNames { get; }
         public Dictionary<string, Func<ISkillContext, bool>> SkillChecker { get; }
         public Dictionary<string, Func<ISkillContext, DSL.SourceFile>> SkillSourceFileGenerator { get; }

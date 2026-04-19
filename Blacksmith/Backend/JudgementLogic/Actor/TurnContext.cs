@@ -20,7 +20,8 @@ namespace Blacksmith.Backend.JudgementLogic.Actor
             else if (resolution is DefenseResolution defenseResolution)
             {
                 DefenseResolutions.Add(defenseResolution);
-            }else if(resolution is ResourceResolution resourceResolution)
+            }
+            else if (resolution is ResourceResolution resourceResolution)
             {
                 ResourceResolutions.Add(resourceResolution);
             }

@@ -37,8 +37,8 @@ namespace Blacksmith.Backend.JudgementLogic.Judgement
         public Action<ActorSet, ActorSet> JudgeRule;
         public Mutation(
             Action<ActorSet, ActorSet> judgeRule,
-            JudgeStage stage, 
-            RuleType ruleType, 
+            JudgeStage stage,
+            RuleType ruleType,
             ModifierOrder modifierOrder,
             int remainingRounds = 1,
             int delayRounds = 0)
@@ -51,7 +51,7 @@ namespace Blacksmith.Backend.JudgementLogic.Judgement
             JudgeRule = judgeRule;
         }
     }
-    public static class DynamicJudgeRulePool
+    public class DynamicJudgeRulePool
     {
         private class MutationPrototype
         {
@@ -75,9 +75,9 @@ namespace Blacksmith.Backend.JudgementLogic.Judgement
                 return new((player, enemy) => JudgeRulePrototype(source, player, enemy), Stage, RuleType, ModifierOrder, RemainingRounds, DelayRounds);
             }
         }
-        private static readonly Dictionary<DynamicJudgeRuleName.BEValue, List<MutationPrototype>> _mutationPrototypes = new();
-        public static void RegistDynamic(
-            DynamicJudgeRuleName.BEValue name, 
+        private readonly Dictionary<DynamicJudgeRuleName.BEValue, List<MutationPrototype>> _mutationPrototypes = new();
+        public void RegistDynamic(
+            DynamicJudgeRuleName.BEValue name,
             List<Mutation> mutations)
         {
             _mutationPrototypes[name] = new();
@@ -95,7 +95,7 @@ namespace Blacksmith.Backend.JudgementLogic.Judgement
                     }));
             }
         }
-        public static List<Mutation> Query(ActorSet source, DynamicJudgeRuleName.BEValue name)
+        public List<Mutation> Query(ActorSet source, DynamicJudgeRuleName.BEValue name)
         {
             return _mutationPrototypes[name].Select(m => m.Specialize(source)).ToList();
         }
@@ -118,12 +118,13 @@ namespace Blacksmith.Backend.JudgementLogic.Judgement
         //AttackResolution转移同理，更加简单，不需要判断Target
 
         //延时保护：实际上与转移是类似的
-        private static void IfElseUtil(ActorSet source, ActorSet player, ActorSet enemy, Action<ActorSet, ActorSet> impl)
+        private void IfElseUtil(ActorSet source, ActorSet player, ActorSet enemy, Action<ActorSet, ActorSet> impl)
         {
-            if(source == player)
+            if (source == player)
             {
                 impl(player, enemy);
-            }else if(source == enemy)
+            }
+            else if (source == enemy)
             {
                 impl(enemy, player);
             }

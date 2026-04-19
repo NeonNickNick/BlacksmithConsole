@@ -11,7 +11,7 @@ namespace Blacksmith.Infra
             if (!Directory.Exists(folderPath))
                 return;
 
-            foreach(var dll in Directory.GetFiles(folderPath, "*.dll"))
+            foreach (var dll in Directory.GetFiles(folderPath, "*.dll"))
             {
                 try
                 {
@@ -20,8 +20,8 @@ namespace Blacksmith.Infra
                 }
                 catch
                 {
-					Console.WriteLine($"加载 {dll} 失败");
-				}
+                    Console.WriteLine($"加载 {dll} 失败");
+                }
             }
         }
         public static List<T> LoadPluginsByType<T>()
@@ -65,7 +65,7 @@ namespace Blacksmith.Infra
 
                     foreach (Type type in staticClasses)
                     {
-						ProcessBlacksmithEnumModifierPlugins(type);
+                        ProcessBlacksmithEnumModifierPlugins(type);
                     }
                 }
                 catch

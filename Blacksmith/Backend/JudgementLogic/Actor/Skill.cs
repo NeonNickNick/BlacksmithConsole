@@ -28,6 +28,7 @@ namespace Blacksmith.Backend.JudgementLogic.Actor
         {
             new(new Common())
         };
+        public bool HaveProfession => _packages.Count > 1;
         public void AddPackage(ISkillPackage skillPacakge)
         {
             _packages.Add(new(skillPacakge));
@@ -42,7 +43,7 @@ namespace Blacksmith.Backend.JudgementLogic.Actor
         }
         public SkillDeclareResult TryDeclare(string skillName, ISkillContext sc)
         {
-            foreach(var package in _packages)
+            foreach (var package in _packages)
             {
                 if (!package.IsActive || !package.SkillPackage.AvailableSkillNames.Contains(skillName))
                 {

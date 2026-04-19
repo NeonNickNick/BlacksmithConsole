@@ -11,12 +11,12 @@ namespace Blacksmith.Infra.ExtensibleEnum
         public abstract Type GetBEValueType();
         public abstract void Create(string name, int priority);
     }
-    public abstract class BlacksmithEnum<T> : BlacksmithEnum 
+    public abstract class BlacksmithEnum<T> : BlacksmithEnum
         where T : BlacksmithEnum<T>, new()
     {
         //实际上可断言一定是先调用构造函数，此时已经不是null
         public static T Instance { get; private set; } = null!;
-        
+
         public struct BEValue : IComparable<BEValue>
         {
             private static int _counter = 0;
@@ -81,10 +81,10 @@ namespace Blacksmith.Infra.ExtensibleEnum
             {
                 var metaData = method.GetCustomAttribute<IsBlacksmithEnumMember>();
                 if (method.ReturnType != typeof(BEValue) ||
-                    method.GetParameters().Length != 0 || 
+                    method.GetParameters().Length != 0 ||
                     metaData == null)
                 {
-                    continue; 
+                    continue;
                 }
                 string methodName = method.Name;
                 Create(methodName, metaData.Priority);

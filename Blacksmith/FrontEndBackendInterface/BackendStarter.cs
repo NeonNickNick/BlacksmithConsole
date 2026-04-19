@@ -1,19 +1,12 @@
-using Blacksmith.FrontendBackendInterface;
 
-namespace Blacksmith.FrontEndBackendInterface
+namespace Blacksmith.FrontendBackendInterface
 {
     public class BackendStarter
     {
-        public GameContext StartBackend()
+        public GameInstance StartBackend()
         {
-            BackendEntry entry = new();
-            GameContext context = new()
-            {
-                SkillChoose = entry,
-                Player = entry.Player,
-                Enemy = entry.Enemy
-            };
-            return context;
+            GameInstance instance = new();
+            return instance;
         }
     }
 }

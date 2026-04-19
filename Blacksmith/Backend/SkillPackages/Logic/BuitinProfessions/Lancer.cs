@@ -8,8 +8,8 @@ using Blacksmith.Backend.SkillPackages.Core;
 
 namespace Blacksmith.Backend.SkillPackages.Logic.BuitinProfessions
 {
-    using Pen = Func<DSLforSkillLogic.SourceFile, DSLforSkillLogic.SourceFile>;
     using DSL = DSLforSkillLogic;
+    using Pen = Func<DSLforSkillLogic.SourceFile, DSLforSkillLogic.SourceFile>;
     public class Lancer : MainProfession
     {
         private bool _fire = false;
@@ -24,7 +24,7 @@ namespace Blacksmith.Backend.SkillPackages.Logic.BuitinProfessions
             .WriteAttack(1, AttackType.Instance.Real(), 0)
             .WriteAttack(1, AttackType.Instance.Real(), 1);
 
-        
+
         private int Fire()
         {
             if (_fire)

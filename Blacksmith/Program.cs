@@ -14,12 +14,13 @@ namespace Blacksmith
         public static void Main()
         {
             PluginLoader.Initialize(".");
-			LoadBlacksmithEnumModifierPlugins();
+            LoadBlacksmithEnumModifierPlugins();
             LoadProfessionPlugins();
 
-			List<IAIStrategy> strategies = new()
+            List<IAIStrategy> strategies = new()
             {
-                new BloodSigilStrategy()
+                new BloodSigilStrategy(),
+                new GeneralStrategy()
             };
             ConsoleFrontend.Start(strategies);
         }
@@ -27,8 +28,8 @@ namespace Blacksmith
         {
             //先注册所有BlacksmithEnum
             var BlacksmithEnumPlugins = PluginLoader.LoadPluginsByType<BlacksmithEnum>();
-            
-            foreach(var plugin in BlacksmithEnumPlugins)
+
+            foreach (var plugin in BlacksmithEnumPlugins)
             {
                 BlacksmithEnumRegistry.RegistBlacksmithEnum(plugin.GetType(), plugin);
             }
@@ -50,10 +51,10 @@ namespace Blacksmith
             //接下来记录Mod对已有包的修改，最重要的是给Common包扩展技能，否则无法使用Mod职业
             foreach (var plugin in ModProfessionPlugins)
             {
-                if(plugin.PackageType == PackageType.Modifier)
+                if (plugin.PackageType == PackageType.Modifier)
                 {
                     var metaData = plugin.GetType().GetCustomAttribute<IsProfessionModifier>();
-                    if(metaData == null)
+                    if (metaData == null)
                     {
                         return;
                     }

@@ -5,8 +5,8 @@ using Blacksmith.Backend.SkillPackages.Core;
 
 namespace Blacksmith.Backend.SkillPackages.Logic.BuitinProfessions
 {
-    using Pen = Func<DSLforSkillLogic.SourceFile, DSLforSkillLogic.SourceFile>;
     using DSL = DSLforSkillLogic;
+    using Pen = Func<DSLforSkillLogic.SourceFile, DSLforSkillLogic.SourceFile>;
     public class BloodSigil : MainProfession
     {
         private float _increase = 1f;

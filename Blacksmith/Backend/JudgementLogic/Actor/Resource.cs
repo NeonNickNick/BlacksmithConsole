@@ -3,14 +3,14 @@ using Blacksmith.Backend.JudgementLogic.Core;
 
 namespace Blacksmith.Backend.JudgementLogic.Actor
 {
-    
+
     public class Resource
     {
         private class ResourceTemplate
         {
             public ResourceType.BEValue CommonType { get; }
             public ResourceType.BEValue GoldType { get; }
-            public float Common { get; set; } = 10;
+            public float Common { get; set; } = 0;
             public float Gold { get; set; } = 0;
             public ResourceTemplate(ResourceType.BEValue commonType, ResourceType.BEValue goldType)
             {
@@ -51,10 +51,11 @@ namespace Blacksmith.Backend.JudgementLogic.Actor
             }
             public void Gain(ResourceType.BEValue type, float add)
             {
-                if(type == CommonType)
+                if (type == CommonType)
                 {
                     Common += add;
-                }else if(type == GoldType)
+                }
+                else if (type == GoldType)
                 {
                     Gold += add;
                 }
@@ -69,7 +70,7 @@ namespace Blacksmith.Backend.JudgementLogic.Actor
         {
             Type type = ResourceType.Instance.GetType();
             FieldInfo? field = type.BaseType?.GetField("_enumDict", BindingFlags.NonPublic | BindingFlags.Static);
-            if(field == null)
+            if (field == null)
             {
                 throw new ArgumentException("Unreachable!");//不应到达这里
             }
@@ -82,7 +83,7 @@ namespace Blacksmith.Backend.JudgementLogic.Actor
             string prefix = "Gold_";
             List<string> golds = enumNames.Where(e => e.StartsWith(prefix)).ToList();
             enumNames.RemoveAll(e => golds.Contains(e));
-            foreach(var gold in golds)
+            foreach (var gold in golds)
             {
                 string commonName = gold.Remove(0, prefix.Length);
                 if (enumNames.Contains(commonName))
@@ -97,7 +98,7 @@ namespace Blacksmith.Backend.JudgementLogic.Actor
                     throw new ArgumentException($"ResourceType {gold} has no paired general resourceType!");
                 }
             }
-            foreach(var rest in enumNames)
+            foreach (var rest in enumNames)
             {
                 var template = new ResourceTemplate(dict[rest], dict[rest]);
                 _resources[dict[rest]] = template;
@@ -122,6 +123,10 @@ namespace Blacksmith.Backend.JudgementLogic.Actor
         public float QueryGold(ResourceType.BEValue type)
         {
             return _resources[type].Gold;
+        }
+        public float QueryAll(ResourceType.BEValue type)
+        {
+            return _resources[type].Gold + _resources[type].Common;
         }
     }
 }

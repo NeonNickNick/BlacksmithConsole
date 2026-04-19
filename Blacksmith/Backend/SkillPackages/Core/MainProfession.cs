@@ -1,5 +1,3 @@
-using Blacksmith.Mod;
-
 namespace Blacksmith.Backend.SkillPackages.Core
 {
     public abstract class MainProfession : SkillPackageBase

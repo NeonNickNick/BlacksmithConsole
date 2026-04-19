@@ -1,5 +1,6 @@
 using Blacksmith.Backend.JudgementLogic.Core;
 using Blacksmith.Backend.JudgementLogic.Judgement;
+using Blacksmith.FrontendBackendInterface;
 
 namespace Blacksmith.AI.Strategies
 {
@@ -9,7 +10,10 @@ namespace Blacksmith.AI.Strategies
 
         private int _turn = 0;
         private readonly Random _random = new();
+        public void Init(GameInstance gameInstance)
+        {
 
+        }
         public (string skillName, int param) ChooseSkill(
             ActorSet self,
             ActorSet opponent)
@@ -36,10 +40,10 @@ namespace Blacksmith.AI.Strategies
 
             return profession switch
             {
-                "cannon"  => ChooseVsCannon(hp, maxDmg, killable),
-                "driver"  => ChooseVsDriver(hp, maxDmg, killable),
+                "cannon" => ChooseVsCannon(hp, maxDmg, killable),
+                "driver" => ChooseVsDriver(hp, maxDmg, killable),
                 "warlock" => ChooseBase(),
-                _         => ChooseBase()
+                _ => ChooseBase()
             };
         }
 

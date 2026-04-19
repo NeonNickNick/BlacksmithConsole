@@ -3,7 +3,6 @@ using Blacksmith.AI;
 using Blacksmith.Backend.JudgementLogic.Actor;
 using Blacksmith.Backend.JudgementLogic.Core;
 using Blacksmith.FrontendBackendInterface;
-using Blacksmith.FrontEndBackendInterface;
 namespace Blacksmith.Frontend
 {
     public static class ConsoleFrontend
@@ -12,7 +11,7 @@ namespace Blacksmith.Frontend
         {
             //从中间层启动后端
             BackendStarter backendStarter = new();
-            GameContext gameContext = backendStarter.StartBackend();
+            GameInstance gameInstance = backendStarter.StartBackend();
             //打印提示
             Console.WriteLine("Welcome!");
             Console.WriteLine();
@@ -38,6 +37,7 @@ namespace Blacksmith.Frontend
                     else
                     {
                         aiStrategy = availableStrategies[mode - 2];
+                        aiStrategy.Init(gameInstance);
                         Console.WriteLine($"\nsys::out >> AI mode selected: {aiStrategy.Name}\n");
                     }
                     break;
@@ -93,7 +93,7 @@ namespace Blacksmith.Frontend
                             Console.WriteLine("\nsys::out >> Goodbye!\n");
                             return;
                         }
-                        var result = gameContext.SkillChoose.TryDeclare(skillName, param);
+                        var result = gameInstance.TryDeclare(skillName, param);
                         switch (result)
                         {
                             case SkillDeclareResult.Illegal:
@@ -112,20 +112,20 @@ namespace Blacksmith.Frontend
                 string esn;
                 int ep;
 
-                 //临时：如果测试策略，选2，否则选1为控制台依次输入玩家和人机技能
+                //临时：如果测试策略，选2，否则选1为控制台依次输入玩家和人机技能
 
                 if (aiStrategy != null)
                 {
                     Console.WriteLine($"\nsys::out >> \"Robert\" is thinking...\n");
-                    var (aiSkill, aiParam) = aiStrategy.ChooseSkill(gameContext.Enemy, gameContext.Player);
+                    var (aiSkill, aiParam) = aiStrategy.ChooseSkill(gameInstance.Enemy, gameInstance.Player);
 
-                    var check = gameContext.SkillChoose.ETryDeclare(aiSkill, aiParam);
+                    var check = gameInstance.ETryDeclare(aiSkill, aiParam);
                     if (check != SkillDeclareResult.Success)
                     {
                         Console.WriteLine($"sys::out >> AI chose \"{aiSkill}\" but it failed ({check}), falling back to \"iron\".");
                         aiSkill = "iron";
                         aiParam = 0;
-                        gameContext.SkillChoose.ETryDeclare(aiSkill, aiParam);
+                        gameInstance.ETryDeclare(aiSkill, aiParam);
                     }
 
                     Console.WriteLine($"sys::out >> \"Robert\" uses: {aiSkill} {aiParam}\n");
@@ -175,7 +175,7 @@ namespace Blacksmith.Frontend
                             Console.WriteLine("\nsys::out >> Goodbye!\n");
                             return;
                         }
-                        var result = gameContext.SkillChoose.ETryDeclare(esn, ep);
+                        var result = gameInstance.ETryDeclare(esn, ep);
                         switch (result)
                         {
                             case SkillDeclareResult.Illegal:
@@ -192,21 +192,21 @@ namespace Blacksmith.Frontend
                     }
                 }
 
-                gameContext.SkillChoose.Declare(skillName, param, esn, ep);
+                gameInstance.Declare(skillName, param, esn, ep);
 
-                LogInfo(gameContext.Player.Focus, gameContext.Enemy.Focus);
+                LogInfo(gameInstance.Player.Focus, gameInstance.Enemy.Focus);
 
-                if (gameContext.Player.Focus.Health.HP <= 0 && gameContext.Enemy.Focus.Health.HP <= 0)
+                if (gameInstance.Player.Focus.Health.HP <= 0 && gameInstance.Enemy.Focus.Health.HP <= 0)
                 {
                     Console.WriteLine($"\nsys::out >> It's a draw!\n");
                     return;
                 }
-                else if (gameContext.Player.Focus.Health.HP <= 0)
+                else if (gameInstance.Player.Focus.Health.HP <= 0)
                 {
                     Console.WriteLine($"\nsys::out >> You lose!\n");
                     return;
                 }
-                else if (gameContext.Enemy.Focus.Health.HP <= 0)
+                else if (gameInstance.Enemy.Focus.Health.HP <= 0)
                 {
                     Console.WriteLine($"\nsys::out >> You win!\n");
                     return;
