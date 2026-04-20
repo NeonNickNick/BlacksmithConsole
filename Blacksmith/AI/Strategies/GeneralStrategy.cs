@@ -1,4 +1,4 @@
-using Blacksmith.AI.Core;
+using System.Text.Json.Serialization;
 using Blacksmith.Backend.JudgementLogic.Actor;
 using Blacksmith.Backend.JudgementLogic.Core;
 using Blacksmith.Backend.JudgementLogic.Judgement;
@@ -7,10 +7,47 @@ using Blacksmith.FrontendBackendInterface;
 
 namespace Blacksmith.AI.Strategies
 {
-    public class GeneralStrategyParams : StrategyParamBase
+    public class GeneralStrategyParams
     {
-        public GeneralStrategyParams() : base() { }
-        public GeneralStrategyParams(GeneralStrategyParams other) : base(other) { }
+        [JsonConstructor]
+        public GeneralStrategyParams()
+        {
+
+        }
+        public GeneralStrategyParams(GeneralStrategyParams other)
+        {
+            TemperatureCoefficient = other.TemperatureCoefficient;
+            WinScore = other.WinScore;
+            LoseScore = other.LoseScore;
+            PlayerResourceEnemyHPRatio = other.PlayerResourceEnemyHPRatio;
+            EnemyResourcePlayerHPRatio = other.EnemyResourcePlayerHPRatio;
+            EarlyIronWeight = other.EarlyIronWeight;
+            EarlyExcessIronWeight = other.EarlyExcessIronWeight;
+            EarlySpaceWeight = other.EarlySpaceWeight;
+            EarlyTimeWeight = other.EarlyTimeWeight;
+            EarlyDefaultWeight = other.EarlyDefaultWeight;
+            EarlyIronOverstockPenalty = other.EarlyIronOverstockPenalty;
+            MidIronWeight = other.MidIronWeight;
+            MidSpaceWeight = other.MidSpaceWeight;
+            MidTimeWeight = other.MidTimeWeight;
+            MidDefaultWeight = other.MidDefaultWeight;
+            LateIronWeight = other.LateIronWeight;
+            LateSpaceWeight = other.LateSpaceWeight;
+            LateTimeWeight = other.LateTimeWeight;
+            LateDefaultWeight = other.LateDefaultWeight;
+            HaveProfessionBonus = other.HaveProfessionBonus;
+            IronDeficitPenaltyWhenEnemyHasProfession = other.IronDeficitPenaltyWhenEnemyHasProfession;
+            IronDeficitPenaltyWhenBothNoProfession = other.IronDeficitPenaltyWhenBothNoProfession;
+            IronDeficitThreshold = other.IronDeficitThreshold;
+            EarlyUnnecessaryAttackPenaltyMultiplier = other.EarlyUnnecessaryAttackPenaltyMultiplier;
+            MidAdvantageAttackBonusMultiplier = other.MidAdvantageAttackBonusMultiplier;
+            MidUnnecessaryAttackPenaltyMultiplier = other.MidUnnecessaryAttackPenaltyMultiplier;
+            WithProfessionDamageBonusMultiplier = other.WithProfessionDamageBonusMultiplier;
+            WithProfessionHpDiffBonusMultiplier = other.WithProfessionHpDiffBonusMultiplier;
+            HpAdvantageThreshold = other.HpAdvantageThreshold;
+            EarlyRoundBonusPerRound = other.EarlyRoundBonusPerRound;
+            LateRoundPenaltyPerRound = other.LateRoundPenaltyPerRound;
+        }
 
         public GeneralStrategyParams GetMutation(Random rand, double MutationScale)
         {
@@ -20,13 +57,41 @@ namespace Blacksmith.AI.Strategies
                 return v * (1 + noise * MutationScale);
             }
             GeneralStrategyParams res = new(this);
-            foreach(var name in res._fieldDict.Keys)
-            {
-                double value = (double)res._fieldDict[name].GetValue(res)!;
-                res._fieldDict[name].SetValue(res, Mut(value));
-            }
+            // 补充变异逻辑
+            res.TemperatureCoefficient = Mut(TemperatureCoefficient);
+            res.WinScore = Mut(WinScore);
+            res.LoseScore = Mut(LoseScore);
+            res.PlayerResourceEnemyHPRatio = Mut(PlayerResourceEnemyHPRatio);
+            res.EnemyResourcePlayerHPRatio = Mut(EnemyResourcePlayerHPRatio);
+            res.EarlyIronWeight = Mut(EarlyIronWeight);
+            res.EarlyExcessIronWeight = Mut(EarlyExcessIronWeight);
+            res.EarlySpaceWeight = Mut(EarlySpaceWeight);
+            res.EarlyTimeWeight = Mut(EarlyTimeWeight);
+            res.EarlyDefaultWeight = Mut(EarlyDefaultWeight);
+            res.EarlyIronOverstockPenalty = Mut(EarlyIronOverstockPenalty);
+            res.MidIronWeight = Mut(MidIronWeight);
+            res.MidSpaceWeight = Mut(MidSpaceWeight);
+            res.MidTimeWeight = Mut(MidTimeWeight);
+            res.MidDefaultWeight = Mut(MidDefaultWeight);
+            res.LateIronWeight = Mut(LateIronWeight);
+            res.LateSpaceWeight = Mut(LateSpaceWeight);
+            res.LateTimeWeight = Mut(LateTimeWeight);
+            res.LateDefaultWeight = Mut(LateDefaultWeight);
+            res.HaveProfessionBonus = Mut(HaveProfessionBonus);
+            res.IronDeficitPenaltyWhenEnemyHasProfession = Mut(IronDeficitPenaltyWhenEnemyHasProfession);
+            res.IronDeficitPenaltyWhenBothNoProfession = Mut(IronDeficitPenaltyWhenBothNoProfession);
+            res.IronDeficitThreshold = Mut(IronDeficitThreshold);
+            res.EarlyUnnecessaryAttackPenaltyMultiplier = Mut(EarlyUnnecessaryAttackPenaltyMultiplier);
+            res.MidAdvantageAttackBonusMultiplier = Mut(MidAdvantageAttackBonusMultiplier);
+            res.MidUnnecessaryAttackPenaltyMultiplier = Mut(MidUnnecessaryAttackPenaltyMultiplier);
+            res.WithProfessionDamageBonusMultiplier = Mut(WithProfessionDamageBonusMultiplier);
+            res.WithProfessionHpDiffBonusMultiplier = Mut(WithProfessionHpDiffBonusMultiplier);
+            res.HpAdvantageThreshold = Mut(HpAdvantageThreshold);
+            res.EarlyRoundBonusPerRound = Mut(EarlyRoundBonusPerRound);
+            res.LateRoundPenaltyPerRound = Mut(LateRoundPenaltyPerRound);
             return res;
         }
+
         public GeneralStrategyParams GetCrossWith(Random rand, GeneralStrategyParams other)
         {
             double Pick(double a, double b)
@@ -34,12 +99,38 @@ namespace Blacksmith.AI.Strategies
                 return rand.NextDouble() < 0.5 ? a : b;
             }
             GeneralStrategyParams res = new();
-            foreach(var name in res._fieldDict.Keys)
-            {
-                double a = (double)this._fieldDict[name].GetValue(this)!;
-                double b = (double)other._fieldDict[name].GetValue(other)!;
-                res._fieldDict[name].SetValue(res, Pick(a, b));
-            }
+            // 补充交叉逻辑
+            res.TemperatureCoefficient = Pick(TemperatureCoefficient, other.TemperatureCoefficient);
+            res.WinScore = Pick(WinScore, other.WinScore);
+            res.LoseScore = Pick(LoseScore, other.LoseScore);
+            res.PlayerResourceEnemyHPRatio = Pick(PlayerResourceEnemyHPRatio, other.PlayerResourceEnemyHPRatio);
+            res.EnemyResourcePlayerHPRatio = Pick(EnemyResourcePlayerHPRatio, other.EnemyResourcePlayerHPRatio);
+            res.EarlyIronWeight = Pick(EarlyIronWeight, other.EarlyIronWeight);
+            res.EarlyExcessIronWeight = Pick(EarlyExcessIronWeight, other.EarlyExcessIronWeight);
+            res.EarlySpaceWeight = Pick(EarlySpaceWeight, other.EarlySpaceWeight);
+            res.EarlyTimeWeight = Pick(EarlyTimeWeight, other.EarlyTimeWeight);
+            res.EarlyDefaultWeight = Pick(EarlyDefaultWeight, other.EarlyDefaultWeight);
+            res.EarlyIronOverstockPenalty = Pick(EarlyIronOverstockPenalty, other.EarlyIronOverstockPenalty);
+            res.MidIronWeight = Pick(MidIronWeight, other.MidIronWeight);
+            res.MidSpaceWeight = Pick(MidSpaceWeight, other.MidSpaceWeight);
+            res.MidTimeWeight = Pick(MidTimeWeight, other.MidTimeWeight);
+            res.MidDefaultWeight = Pick(MidDefaultWeight, other.MidDefaultWeight);
+            res.LateIronWeight = Pick(LateIronWeight, other.LateIronWeight);
+            res.LateSpaceWeight = Pick(LateSpaceWeight, other.LateSpaceWeight);
+            res.LateTimeWeight = Pick(LateTimeWeight, other.LateTimeWeight);
+            res.LateDefaultWeight = Pick(LateDefaultWeight, other.LateDefaultWeight);
+            res.HaveProfessionBonus = Pick(HaveProfessionBonus, other.HaveProfessionBonus);
+            res.IronDeficitPenaltyWhenEnemyHasProfession = Pick(IronDeficitPenaltyWhenEnemyHasProfession, other.IronDeficitPenaltyWhenEnemyHasProfession);
+            res.IronDeficitPenaltyWhenBothNoProfession = Pick(IronDeficitPenaltyWhenBothNoProfession, other.IronDeficitPenaltyWhenBothNoProfession);
+            res.IronDeficitThreshold = Pick(IronDeficitThreshold, other.IronDeficitThreshold);
+            res.EarlyUnnecessaryAttackPenaltyMultiplier = Pick(EarlyUnnecessaryAttackPenaltyMultiplier, other.EarlyUnnecessaryAttackPenaltyMultiplier);
+            res.MidAdvantageAttackBonusMultiplier = Pick(MidAdvantageAttackBonusMultiplier, other.MidAdvantageAttackBonusMultiplier);
+            res.MidUnnecessaryAttackPenaltyMultiplier = Pick(MidUnnecessaryAttackPenaltyMultiplier, other.MidUnnecessaryAttackPenaltyMultiplier);
+            res.WithProfessionDamageBonusMultiplier = Pick(WithProfessionDamageBonusMultiplier, other.WithProfessionDamageBonusMultiplier);
+            res.WithProfessionHpDiffBonusMultiplier = Pick(WithProfessionHpDiffBonusMultiplier, other.WithProfessionHpDiffBonusMultiplier);
+            res.HpAdvantageThreshold = Pick(HpAdvantageThreshold, other.HpAdvantageThreshold);
+            res.EarlyRoundBonusPerRound = Pick(EarlyRoundBonusPerRound, other.EarlyRoundBonusPerRound);
+            res.LateRoundPenaltyPerRound = Pick(LateRoundPenaltyPerRound, other.LateRoundPenaltyPerRound);
             return res;
         }
         public double TemperatureCoefficient  = 0.03; // 原 0.03 * round
@@ -101,14 +192,6 @@ namespace Blacksmith.AI.Strategies
         public GeneralStrategy(GeneralStrategyParams? parameters = null)
         {
             _params = parameters ?? new GeneralStrategyParams();
-            if (parameters == null)
-            {
-                Console.WriteLine($"未找到参数文件，使用默认参数");
-            }
-            else
-            {
-                Console.WriteLine($"已加载参数文件");
-            }
         }
 
         public void Init(GameInstance gameInstance)
@@ -310,17 +393,17 @@ namespace Blacksmith.AI.Strategies
             double score = 0;
 
             // 阶段划分
-            bool early = round < 8;
-            bool mid = round >= 8 && round < 15;
+            bool early = round < 10;
+            bool mid = round >= 10 && round < 15;
             bool late = round >= 15;
 
             //0 交叉关注
             //引入双方铁和生命值之间的关系
-            score -= 
+            score -= 10 * 
                 ((playerIron + 3 * playerSpace + 2 * playerMagic) / (enemyHP + 1e-6 )) * 
                     _params.PlayerResourceEnemyHPRatio;
             
-            score += 
+            score += 10 * 
                 ((enemyIron + 3 * enemySpace + 2 * enemyMagic) / (playerHP + 1e-6)) *
                     _params.EnemyResourcePlayerHPRatio;
 

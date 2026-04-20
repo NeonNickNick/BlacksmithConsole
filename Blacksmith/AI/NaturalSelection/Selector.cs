@@ -11,13 +11,17 @@ namespace Blacksmith.AI.NaturalSelection
         public static void StartSelect()
         {
             var evolver = new ParamsEvolver(Compete);
-            var best = evolver.Train(13);
+            var best = evolver.Train(30);
             SaveToFile<GeneralStrategyParams>(best, "data.json");
             Console.WriteLine("训练完成");
         }
         public static void SaveToFile<T>(T data, string filePath)
         {
-            var options = new JsonSerializerOptions { WriteIndented = true };
+            var options = new JsonSerializerOptions
+            {
+                WriteIndented = true,
+                IncludeFields = true
+            };
             string json = JsonSerializer.Serialize(data, options);
             File.WriteAllText(filePath, json);
         }
@@ -25,8 +29,12 @@ namespace Blacksmith.AI.NaturalSelection
         // 从 JSON 文件加载
         public static T LoadFromFile<T>(string filePath)
         {
+            var options = new JsonSerializerOptions
+            {
+                IncludeFields = true  // 添加这行
+            };
             string json = File.ReadAllText(filePath);
-            return JsonSerializer.Deserialize<T>(json);
+            return JsonSerializer.Deserialize<T>(json, options);  // 传入 options
         }
         private static bool Compete(GeneralStrategyParams a, GeneralStrategyParams b)
         {

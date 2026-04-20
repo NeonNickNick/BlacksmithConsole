@@ -12,7 +12,7 @@ namespace Blacksmith
 {
     public static class Program
     {
-        public static void Main(string[] args)
+        public static void Main()
         {
             PluginLoader.Initialize(AppContext.BaseDirectory);
             LoadBlacksmithEnumModifierPlugins();
