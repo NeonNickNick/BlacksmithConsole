@@ -66,6 +66,18 @@ namespace Blacksmith.Frontend
                 {
                     return Results.Json(new { ok = false, message = "Game not started" });
                 }
+                if (gameInstance.Player.Focus.Health.HP <= 0 && gameInstance.Enemy.Focus.Health.HP <= 0)
+                {
+                    return Results.Json(new { ok = false, message = "It's a draw!" });
+                }
+                else if (gameInstance.Player.Focus.Health.HP <= 0)
+                {
+                    return Results.Json(new { ok = false, message = "You lose!" });
+                }
+                else if (gameInstance.Enemy.Focus.Health.HP <= 0)
+                {
+                    return Results.Json(new { ok = false, message = "You win!" });
+                }
                 var dto = await ctx.Request.ReadFromJsonAsync<DeclareDto>();
                 if (dto == null || string.IsNullOrWhiteSpace(dto.skillName))
                 {
