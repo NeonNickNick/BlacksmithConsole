@@ -375,11 +375,11 @@ namespace Blacksmith.AI.Strategies
             double enemyIron = enemy.Focus.Resource.QueryAll(ResourceType.Instance.Iron());
             double enemySpace = enemy.Focus.Resource.QueryAll(ResourceType.Instance.Space());
             double enemyTime = enemy.Focus.Resource.QueryAll(ResourceType.Instance.Time());
-            double enemyMagic = enemy.Focus.Resource.QueryAll(ResourceType.Instance.Magic());
+            double enemySpecific = enemy.Focus.Resource.QuerySpecific(ResourceType.Instance.Magic());
 
             double playerIron = player.Focus.Resource.QueryAll(ResourceType.Instance.Iron());
             double playerSpace = player.Focus.Resource.QueryAll(ResourceType.Instance.Space());
-            double playerMagic = player.Focus.Resource.QueryAll(ResourceType.Instance.Magic());
+            double playerSpecific = player.Focus.Resource.QuerySpecific(ResourceType.Instance.Magic());
 
             bool haveProfession = enemy.Focus.Skill.HaveProfession;
             bool playerHaveProfession = player.Focus.Skill.HaveProfession;
@@ -400,11 +400,11 @@ namespace Blacksmith.AI.Strategies
             //0 交叉关注
             //引入双方铁和生命值之间的关系
             score -= 10 * 
-                ((playerIron + 3 * playerSpace + 2 * playerMagic) / (enemyHP + 1e-6 )) * 
+                ((playerIron + 3 * playerSpace + 2 * playerSpecific) / (enemyHP + 1e-6 )) * 
                     _params.PlayerResourceEnemyHPRatio;
             
             score += 10 * 
-                ((enemyIron + 3 * enemySpace + 2 * enemyMagic) / (playerHP + 1e-6)) *
+                ((enemyIron + 3 * enemySpace + 2 * enemySpecific) / (playerHP + 1e-6)) *
                     _params.EnemyResourcePlayerHPRatio;
 
             // 1️⃣ 资源系统
@@ -415,7 +415,7 @@ namespace Blacksmith.AI.Strategies
                 resourceScore += Math.Max(0, enemyIron - 4) * _params.EarlyExcessIronWeight;
                 resourceScore += enemySpace * _params.EarlySpaceWeight;
                 resourceScore += enemyTime * _params.EarlyTimeWeight;
-                resourceScore += enemyMagic * _params.EarlyDefaultWeight;
+                resourceScore += enemySpecific * _params.EarlyDefaultWeight;
                 resourceScore -= Math.Max(0, enemyIron - 7) * _params.EarlyIronOverstockPenalty;
             }
             else if (mid)
@@ -423,14 +423,14 @@ namespace Blacksmith.AI.Strategies
                 resourceScore += enemyIron * _params.MidIronWeight;
                 resourceScore += enemySpace * _params.MidSpaceWeight;
                 resourceScore += enemyTime * _params.MidTimeWeight;
-                resourceScore += enemyMagic * _params.MidDefaultWeight;
+                resourceScore += enemySpecific * _params.MidDefaultWeight;
             }
             else // late
             {
                 resourceScore += enemyIron * _params.LateIronWeight;
                 resourceScore += enemySpace * _params.LateSpaceWeight;
                 resourceScore += enemyTime * _params.LateTimeWeight;
-                resourceScore += enemyMagic * _params.LateDefaultWeight;
+                resourceScore += enemySpecific * _params.LateDefaultWeight;
             }
             score += resourceScore;
 

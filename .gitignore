@@ -3,6 +3,9 @@ Blacksmith/bin/
 Blacksmith/obj/
 Blacksmith/countline.py
 Blacksmith/Properties
+ModExamples./.vs/
+ModExamples/bin/
+ModExamples/obj/
 dick.py
 .vscode/settings.json
 .vscode/tasks.json

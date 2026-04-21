@@ -28,7 +28,7 @@ namespace Blacksmith.Backend.JudgementLogic.Actor
         }
         public void LoseHP(int loss)
         {
-            HP = (int)MathF.Max(0f, HP - loss);
+            HP = HP - loss;
             OnHealthChanged?.Invoke(HP, MHP);
         }
         public bool LoseMHP(int loss)

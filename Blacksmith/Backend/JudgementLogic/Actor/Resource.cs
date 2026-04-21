@@ -128,5 +128,18 @@ namespace Blacksmith.Backend.JudgementLogic.Actor
         {
             return _resources[type].Gold + _resources[type].Common;
         }
+        public float QuerySpecific(ResourceType.BEValue type)
+        {
+            float res = 0;
+            foreach (var name in _resources.Keys)
+            {
+                if( name == ResourceType.Instance.Iron() ||
+                    name == ResourceType.Instance.Gold_Iron() ||
+                    name == ResourceType.Instance.Space() ||
+                    name == ResourceType.Instance.Space())
+                res +=  _resources[type].Gold + _resources[type].Common;
+            }
+            return res;
+        }
     }
 }
