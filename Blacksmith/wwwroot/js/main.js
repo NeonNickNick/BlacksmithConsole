@@ -1,84 +1,124 @@
-// ===== main.js =====
 function parseSkill(text) {
-    let name = "iron", param = 0;
-    if (text) {
-        const p = text.split(' ', 2);
-        name = p[0];
-        if (p.length > 1) param = parseInt(p[1]) || 0;
-    }
-    return { name, param };
+    const raw = (text || '').trim();
+    if (!raw) return { name: 'iron', param: 0 };
+
+    const parts = raw.split(/\s+/, 2);
+    const name = parts[0] || 'iron';
+    const parsed = Number.parseInt(parts[1], 10);
+
+    return { name, param: Number.isFinite(parsed) ? parsed : 0 };
 }
 
-// Get DOM elements explicitly
+async function withBusy(task) {
+    if (State.busy) return;
+
+    State.busy = true;
+    updateBusyState();
+
+    try {
+        await task();
+    } catch (error) {
+        const message = error instanceof Error ? error.message : 'Unexpected error';
+        State.lastResult = message;
+        renderTurn();
+        alert(message);
+    } finally {
+        State.busy = false;
+        updateBusyState();
+    }
+}
+
 const startBtn = document.getElementById('startBtn');
+const restartBtn = document.getElementById('restartBtn');
 const strategy = document.getElementById('strategy');
 const skillInput = document.getElementById('skill');
 const eskill = document.getElementById('eskill');
 const declareBtn = document.getElementById('declareBtn');
 const prevBtn = document.getElementById('prevBtn');
 const nextBtn = document.getElementById('nextBtn');
+const heroPanel = document.getElementById('heroPanel');
 
-startBtn.onclick = async () => {
-    State.turns = [];
-    State.currentTurn = -1;
+async function startOrRestartGame() {
+    const mode = Number.parseInt(strategy.value, 10);
+    const response = await startGame(mode);
+    if (!response.ok) {
+        throw new Error(response.message || 'Unable to start game.');
+    }
+    renderSnapshot(response.snapshot, { autoFocusLatest: true });
+}
 
-    const mode = parseInt(strategy.value);
-    const json = await startGame(mode);
+startBtn?.addEventListener('click', () => withBusy(startOrRestartGame));
+restartBtn?.addEventListener('click', () => withBusy(startOrRestartGame));
 
-    State.isManual = json.manual;
+strategy?.addEventListener('change', () => {
+    const selectedOption = strategy.options[strategy.selectedIndex];
+    State.selectedModeName = selectedOption ? selectedOption.textContent : 'Not started';
+    State.isManual = Number.parseInt(strategy.value, 10) === 1;
+    const modeBadge = document.getElementById('modeBadge');
+    if (modeBadge) modeBadge.textContent = State.selectedModeName;
     updateEnemyInputVisibility();
+});
 
-    alert(`Game started | AI=${json.ai}`);
-};
-
-declareBtn.onclick = async () => {
-    const skill = parseSkill(skillInput.value);
-    const esk = parseSkill(eskill.value);
-
-    const payload = {
+declareBtn?.addEventListener('click', () => withBusy(async () => {
+    const skill = parseSkill(skillInput?.value || '');
+    const enemySkill = parseSkill(eskill?.value || '');
+    const response = await declareAPI({
         skillName: skill.name,
         param: skill.param,
-        esn: esk.name,
-        ep: esk.param
-    };
-
-    const json = await declareAPI(payload);
-    if (!json.ok) return alert(json.message);
-
-    State.turns.push({
-        action: json.message,
-        log: json.log,
-        player: json.player,
-        enemy: json.enemy
+        esn: enemySkill.name,
+        ep: enemySkill.param
     });
 
-    State.currentTurn = State.turns.length - 1;
-    renderTurn();
-};
+    if (!response.ok) {
+        renderSnapshot(response.snapshot, { autoFocusLatest: true });
+        throw new Error(response.message || 'Turn declaration failed.');
+    }
 
-prevBtn.onclick = () => {
+    renderSnapshot(response.snapshot, { autoFocusLatest: true });
+}));
+
+prevBtn?.addEventListener('click', () => {
     if (State.currentTurn > 0) {
-        State.currentTurn--;
+        State.currentTurn -= 1;
         renderTurn();
     }
-};
+});
 
-nextBtn.onclick = () => {
+nextBtn?.addEventListener('click', () => {
     if (State.currentTurn < State.turns.length - 1) {
-        State.currentTurn++;
+        State.currentTurn += 1;
         renderTurn();
     }
-};
+});
+
+heroPanel?.addEventListener('toggle', () => {
+    State.heroCollapsed = !heroPanel.open;
+    updateHeroVisibility();
+});
 
 (async function init() {
-    const list = await loadStrategies();
-    strategy.innerHTML = '';
-    list.forEach(s => {
-        const opt = document.createElement('option');
-        opt.value = s.id;
-        opt.textContent = `${s.id} - ${s.name}`;
-        strategy.appendChild(opt);
+    await withBusy(async () => {
+        const list = await loadStrategies();
+        strategy.innerHTML = '';
+        list.forEach(item => {
+            const option = document.createElement('option');
+            option.value = item.id;
+            option.textContent = item.name;
+            strategy.appendChild(option);
+        });
+
+        if (strategy.options.length > 0) {
+            strategy.selectedIndex = 0;
+            State.selectedModeName = strategy.options[0].textContent;
+            State.isManual = Number.parseInt(strategy.value, 10) === 1;
+        }
+
+        const status = await loadStatus();
+        if (status.ok) {
+            renderSnapshot(status.snapshot, { autoFocusLatest: true });
+        } else {
+            updateEnemyInputVisibility();
+            renderTurn();
+        }
     });
-    // Ensure enemy input visibility is correct on load
-    updateEnemyInputVisibility();
 })();

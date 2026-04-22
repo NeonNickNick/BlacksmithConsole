@@ -1,24 +1,31 @@
+async function readJson(response) {
+    const data = await response.json().catch(() => null);
+    if (!response.ok) {
+        throw new Error(data?.message || `Request failed: ${response.status}`);
+    }
+    return data;
+}
 
-// ===== api.js =====
 async function loadStrategies() {
-    const res = await fetch('/api/strategies');
-    return await res.json();
+    return await readJson(await fetch('/api/strategies'));
 }
 
 async function startGame(mode) {
-    const res = await fetch('/api/start', {
+    return await readJson(await fetch('/api/start', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ mode })
-    });
-    return await res.json();
+    }));
 }
 
 async function declareAPI(payload) {
-    const res = await fetch('/api/declare', {
+    return await readJson(await fetch('/api/declare', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload)
-    });
-    return await res.json();
+    }));
+}
+
+async function loadStatus() {
+    return await readJson(await fetch('/api/status'));
 }

@@ -33,32 +33,10 @@ namespace Blacksmith
                 new BloodSigilStrategy(),
                 new GeneralStrategy(param)
             };
-            /*
+            
             Console.WriteLine("Welcome!\n");
-            Console.WriteLine(">1 -> Cli");
-            Console.WriteLine(">2 -> Web");
-            while (true)
-            {
-                Console.Write(">");
-                string? input = Console.ReadLine();
-                if(input == null)
-                {
-                    continue;
-                }
-                if(int.TryParse(input, out var value))
-                {
-                    if(value == 1)
-                    {
-                        ConsoleFrontend.Start(strategies);
-                    }
-                    if(value == 2)
-                    {
-                        LocalHost.Start(strategies);
-                    }
-                }
-            }
-            */
-            ConsoleFrontend.Start(strategies);
+            LocalHost.Start(strategies);
+            //ConsoleFrontend.Start(strategies);
         }
         private static void LoadBlacksmithEnumModifierPlugins()
         {

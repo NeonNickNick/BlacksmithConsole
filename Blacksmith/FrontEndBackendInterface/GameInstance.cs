@@ -2,6 +2,7 @@ using Blacksmith.Backend.Backend.SkillPackages.Logic;
 using Blacksmith.Backend.JudgementLogic.Actor;
 using Blacksmith.Backend.JudgementLogic.Judgement;
 using Blacksmith.Backend.SkillPackages.Logic;
+using Blacksmith.FrontendBackendInterface.Web;
 
 namespace Blacksmith.FrontendBackendInterface
 {
@@ -70,6 +71,12 @@ namespace Blacksmith.FrontendBackendInterface
             esfs.InsertRange(0, Enemy.Focus.Skill.GetPassiveSkill(enemyContext));
 
             Judger.Judge(psfs, esfs);
+
+            History.Turns.Add(new WebTurnRecord(
+                History.Turns.Count + 1,
+                new WebActionRecord(skillName, param),
+                new WebActionRecord(esn, ep),
+                WebGameReader.GetResult(Player.Focus, Enemy.Focus)));
         }
     }
 }

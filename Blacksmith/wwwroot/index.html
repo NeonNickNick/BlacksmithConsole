@@ -2,50 +2,172 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Blacksmith UI</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blacksmith Command Deck</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
-    <div class="container">
+    <div class="app-shell">
+        <div class="background-orbit orbit-a"></div>
+        <div class="background-orbit orbit-b"></div>
 
-        <h1>Blacksmith Battle</h1>
+        <main class="layout">
+            <section class="hero panel">
+                <details class="hero-collapsible" id="heroPanel" open>
+                    <summary class="hero-summary">
+                        <div>
+                            <p class="eyebrow">Blacksmith Framework</p>
+                            <h1>Battle Command Deck</h1>
+                        </div>
+                        <div class="hero-summary-meta">
+                            <div class="meta-card compact-meta">
+                                <span class="meta-label">Current Mode</span>
+                                <strong id="modeBadge">Not started</strong>
+                            </div>
+                            <div class="meta-card compact-meta">
+                                <span class="meta-label">Result</span>
+                                <strong id="resultBadge">Awaiting game</strong>
+                            </div>
+                        </div>
+                    </summary>
+                    <div class="hero-content">
+                        <div class="hero-copy-block" id="heroCopyBlock">
+                            <p class="hero-copy">Choose a mode from the title deck, start or restart instantly, and inspect the battlefield through structured panels instead of console-style logs.</p>
+                        </div>
 
-        <div class="card">
-            <select id="strategy"></select>
-            <button id="startBtn">Start</button>
-        </div>
+                        <div class="hero-controls">
+                            <label class="hero-field">
+                                <span>Mode</span>
+                                <select id="strategy"></select>
+                            </label>
+                            <div class="button-row hero-buttons">
+                                <button id="startBtn" class="primary-btn">Start Game</button>
+                                <button id="restartBtn" class="ghost-btn">Restart</button>
+                            </div>
+                            <div class="hero-status-row">
+                                <span class="status-pill" id="connectionState">Ready</span>
+                            </div>
+                        </div>
+                    </div>
+                </details>
+            </section>
 
-        <div class="card control-panel">
-            <input id="skill" placeholder="your skill param" />
-            <input id="eskill" placeholder="enemy skill param (manual only)" />
-            <button id="declareBtn">Declare</button>
-        </div>
+            <section class="control-grid">
+                <article class="panel action-panel">
+                    <div class="panel-heading">
+                        <div>
+                            <p class="eyebrow">Turn Input</p>
+                            <h2>Declare Skills</h2>
+                        </div>
+                        <span class="status-pill muted" id="turnCounterPill">Turn 0</span>
+                    </div>
 
-        <div class="card turn-view">
-            <div class="turn-header">
-                <button id="prevBtn">◀</button>
-                <span id="turnIndex">Turn 0</span>
-                <button id="nextBtn">▶</button>
-            </div>
+                    <label class="field">
+                        <span>Your skill</span>
+                        <input id="skill" placeholder="iron 0" autocomplete="off" />
+                    </label>
 
-            <div class="turn-content">
-                <div class="side">
-                    <h3>You</h3>
-                    <div id="pHP"></div>
-                </div>
+                    <label class="field" id="enemyField">
+                        <span>Enemy skill</span>
+                        <input id="eskill" placeholder="iron 0" autocomplete="off" />
+                    </label>
 
-                <div class="center">
-                    <div id="actionText"></div>
-                    <pre id="detailLog"></pre>
-                </div>
+                    <div class="button-row">
+                        <button id="declareBtn" class="primary-btn">Confirm Turn</button>
+                    </div>
 
-                <div class="side">
-                    <h3>Enemy</h3>
-                    <div id="eHP"></div>
-                </div>
-            </div>
-        </div>
+                    <p class="hint" id="modeHint">Manual mode lets you enter both sides of the turn.</p>
+                    <p class="hint" id="actionHint">Start a game to enable turn declaration.</p>
+                </article>
 
+                <article class="panel timeline-panel">
+                    <div class="panel-heading compact">
+                        <div>
+                            <p class="eyebrow">Battlefeed</p>
+                            <h2 id="turnIndex">Turn 0 / 0</h2>
+                        </div>
+                        <div class="button-row nav-row">
+                            <button id="prevBtn" class="ghost-btn small-btn">Previous</button>
+                            <button id="nextBtn" class="ghost-btn small-btn">Next</button>
+                        </div>
+                    </div>
+
+                    <div id="actionText" class="action-banner">No actions recorded yet.</div>
+                    <div id="turnSummary" class="summary-grid battle-summary"></div>
+                </article>
+            </section>
+
+            <section class="battle-grid">
+                <article class="panel fighter-panel">
+                    <div class="panel-heading compact">
+                        <div>
+                            <p class="eyebrow">Player</p>
+                            <h2 id="playerName">You</h2>
+                        </div>
+                        <strong id="pHP">HP --/--</strong>
+                    </div>
+                    <div class="profession-banner">Profession: <strong id="playerProfession">None</strong></div>
+                    <div class="health-track">
+                        <div class="health-fill player-fill" id="playerHealthFill"></div>
+                    </div>
+                    <details class="actor-section collapsible" open>
+                        <summary>Resources</summary>
+                        <div id="playerResources" class="token-grid empty-state-box">No data yet.</div>
+                    </details>
+                    <details class="actor-section collapsible">
+                        <summary>Defenses</summary>
+                        <div id="playerDefenses" class="token-grid empty-state-box">No active defenses.</div>
+                    </details>
+                    <details class="actor-section collapsible" open>
+                        <summary>Available Skills</summary>
+                        <div id="playerSkills" class="token-grid empty-state-box">No data yet.</div>
+                    </details>
+                </article>
+
+                <article class="panel fighter-panel">
+                    <div class="panel-heading compact">
+                        <div>
+                            <p class="eyebrow">Opponent</p>
+                            <h2 id="enemyName">Robert</h2>
+                        </div>
+                        <strong id="eHP">HP --/--</strong>
+                    </div>
+                    <div class="profession-banner">Profession: <strong id="enemyProfession">None</strong></div>
+                    <div class="health-track">
+                        <div class="health-fill enemy-fill" id="enemyHealthFill"></div>
+                    </div>
+                    <details class="actor-section collapsible" open>
+                        <summary>Resources</summary>
+                        <div id="enemyResources" class="token-grid empty-state-box">No data yet.</div>
+                    </details>
+                    <details class="actor-section collapsible">
+                        <summary>Defenses</summary>
+                        <div id="enemyDefenses" class="token-grid empty-state-box">No active defenses.</div>
+                    </details>
+                    <details class="actor-section collapsible" open>
+                        <summary>Available Skills</summary>
+                        <div id="enemySkills" class="token-grid empty-state-box">No data yet.</div>
+                    </details>
+                </article>
+            </section>
+
+            <section class="panel history-panel">
+                <details class="history-collapsible" id="historyPanel">
+                    <summary class="panel-heading compact">
+                        <div>
+                            <p class="eyebrow">History</p>
+                            <h2>Recent Turns</h2>
+                        </div>
+                    </summary>
+                    <div id="historyList" class="history-list">
+                        <div class="history-empty">No turns yet. Once the battle starts, each round will be archived here.</div>
+                    </div>
+                </details>
+            </section>
+        </main>
     </div>
 
     <script src="js/state.js"></script>
