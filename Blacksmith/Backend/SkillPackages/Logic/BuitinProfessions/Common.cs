@@ -142,12 +142,12 @@ namespace Blacksmith.Backend.SkillPackages.Logic.BuitinProfessions
                     {
                         new(
                             ReflectRule.EffectSwaping_Modifier_After,
-                            JudgeStage.OnEffectSwaping,
+                            JudgeStage.Instance.OnEffectSwaping(),
                             RuleType.Modifier,
                             ModifierOrder.After),
                         new(
                             ReflectRule.AttackSwaping_Modifier_After,
-                            JudgeStage.OnAttackSwaping,
+                            JudgeStage.Instance.OnAttackSwaping(),
                             RuleType.Modifier,
                             ModifierOrder.After)
                     });

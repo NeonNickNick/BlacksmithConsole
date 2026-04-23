@@ -101,50 +101,50 @@ namespace Blacksmith.Backend.JudgementLogic.Judgement
             }
         }
 
-        private readonly SortedDictionary<JudgeStage, StageRuleContainer> _ruleContainers = new()
+        private readonly SortedDictionary<JudgeStage.BEValue, StageRuleContainer> _ruleContainers = new()
         {
             {
-                JudgeStage.OnBegin,
+                JudgeStage.Instance.OnBegin(),
                 new((player, enemy) => { })
             },
             {
-                JudgeStage.OnEffectTaking_AfterResolutionWritten,
+                JudgeStage.Instance.OnEffectTaking_AfterResolutionWritten(),
                 new((player, enemy) => TakeEffects(EffectType.Instance.AfterResolutionWritten(), player, enemy))
             },
             {
-                JudgeStage.OnEffectSwaping,
+                JudgeStage.Instance.OnEffectSwaping(),
                 new(SwapEffects)
             },
             {
-                JudgeStage.OnAttackCanceling,
+                JudgeStage.Instance.OnAttackCanceling(),
                 new(CancelAttacks)
             },
             {
-                JudgeStage.OnAttackSwaping,
+                JudgeStage.Instance.OnAttackSwaping(),
                 new(SwapAttacks)
             },
             {
-                JudgeStage.OnApplyingEffect,
+                JudgeStage.Instance.OnApplyingEffect(),
                 new(ApplyEffect)
             },
             {
-                JudgeStage.OnEffectTaking_AfterTransport,
+                JudgeStage.Instance.OnEffectTaking_AfterTransport(),
                 new((player, enemy) => TakeEffects(EffectType.Instance.AfterTransport(), player, enemy))
             },
             {
-                JudgeStage.OnApplyingOthers,
+                JudgeStage.Instance.OnApplyingOthers(),
                 new(ApplyOthers)
             },
             {
-                JudgeStage.OnUpdating,
+                JudgeStage.Instance.OnUpdating(),
                 new(Update)
             },
             {
-                JudgeStage.OnEffectTaking_AfterResult,
+                JudgeStage.Instance.OnEffectTaking_AfterResult(),
                 new((player, enemy) => TakeEffects(EffectType.Instance.AfterResult(), player, enemy))
             },
             {
-                JudgeStage.OnEnd,
+                JudgeStage.Instance.OnEnd(),
                 new((player, enemy) => { })
             }
         };

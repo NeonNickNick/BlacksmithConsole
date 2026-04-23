@@ -1,21 +1,34 @@
 using System.Data;
 using Blacksmith.Backend.JudgementLogic.Judgement.Core;
+using Blacksmith.Infra.Attributes;
+using Blacksmith.Infra.ExtensibleEnum;
 
 namespace Blacksmith.Backend.JudgementLogic.Judgement
 {
-    public enum JudgeStage
+    public class JudgeStage : BlacksmithEnum<JudgeStage>
     {
-        OnBegin,
-        OnEffectTaking_AfterResolutionWritten,
-        OnEffectSwaping,
-        OnAttackCanceling,
-        OnAttackSwaping,
-        OnApplyingEffect,
-        OnEffectTaking_AfterTransport,
-        OnApplyingOthers,
-        OnUpdating,
-        OnEffectTaking_AfterResult,
-        OnEnd
+        [IsBlacksmithEnumMember(0)]
+        public BEValue OnBegin() => GetBEValue();
+        [IsBlacksmithEnumMember(8)]
+        public BEValue OnEffectTaking_AfterResolutionWritten() => GetBEValue();
+        [IsBlacksmithEnumMember(16)]
+        public BEValue OnEffectSwaping() => GetBEValue();
+        [IsBlacksmithEnumMember(32)]
+        public BEValue OnAttackCanceling() => GetBEValue();
+        [IsBlacksmithEnumMember(64)]
+        public BEValue OnAttackSwaping() => GetBEValue();
+        [IsBlacksmithEnumMember(128)]
+        public BEValue OnApplyingEffect() => GetBEValue();
+        [IsBlacksmithEnumMember(256)]
+        public BEValue OnEffectTaking_AfterTransport() => GetBEValue();
+        [IsBlacksmithEnumMember(512)]
+        public BEValue OnApplyingOthers() => GetBEValue();
+        [IsBlacksmithEnumMember(1024)]
+        public BEValue OnUpdating() => GetBEValue();
+        [IsBlacksmithEnumMember(2048)]
+        public BEValue OnEffectTaking_AfterResult() => GetBEValue();
+        [IsBlacksmithEnumMember(4096)]
+        public BEValue OnEnd() => GetBEValue();
     }
     public enum RuleType
     {
@@ -31,13 +44,13 @@ namespace Blacksmith.Backend.JudgementLogic.Judgement
     {
         public int RemainingRounds;
         public int DelayRounds;
-        public JudgeStage Stage;
+        public JudgeStage.BEValue Stage;
         public RuleType RuleType;
         public ModifierOrder ModifierOrder;
         public Action<ActorSet, ActorSet> JudgeRule;
         public Mutation(
             Action<ActorSet, ActorSet> judgeRule,
-            JudgeStage stage,
+            JudgeStage.BEValue stage,
             RuleType ruleType,
             ModifierOrder modifierOrder,
             int remainingRounds = 1,
@@ -57,11 +70,11 @@ namespace Blacksmith.Backend.JudgementLogic.Judgement
         {
             public int RemainingRounds;
             public int DelayRounds;
-            public JudgeStage Stage;
+            public JudgeStage.BEValue Stage;
             public RuleType RuleType;
             public ModifierOrder ModifierOrder;
             public Action<ActorSet, ActorSet, ActorSet> JudgeRulePrototype;
-            public MutationPrototype(int remainingRounds, int delayRounds, JudgeStage stage, RuleType ruleType, ModifierOrder modifierOrder, Action<ActorSet, ActorSet, ActorSet> judgeRulePrototype)
+            public MutationPrototype(int remainingRounds, int delayRounds, JudgeStage.BEValue stage, RuleType ruleType, ModifierOrder modifierOrder, Action<ActorSet, ActorSet, ActorSet> judgeRulePrototype)
             {
                 RemainingRounds = remainingRounds;
                 DelayRounds = delayRounds;

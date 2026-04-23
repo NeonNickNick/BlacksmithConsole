@@ -140,7 +140,7 @@ namespace Blacksmith.Backend.SkillPackages.Logic.BuitinProfessions
                 .LinkJudgeRuleDynamic(DynamicJudgeRuleName.Instance.Charge(), new()
                 {
                     new(AttackCanceling_Modifier_Before,
-                    JudgeStage.OnAttackCanceling,
+                    JudgeStage.Instance.OnAttackCanceling(),
                     RuleType.Modifier,
                     ModifierOrder.Before),
                     new((player, enemy) =>
@@ -152,7 +152,7 @@ namespace Blacksmith.Backend.SkillPackages.Logic.BuitinProfessions
                         }
                         _ifPassive = false;
                     },
-                    JudgeStage.OnBegin,
+                    JudgeStage.Instance.OnBegin(),
                     RuleType.Modifier,
                     ModifierOrder.Before,
                     delayRounds: 1)
