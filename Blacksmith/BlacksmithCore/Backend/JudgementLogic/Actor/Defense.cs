@@ -34,7 +34,7 @@ namespace BlacksmithCore.Backend.JudgementLogic.Actor
             {
                 return false;
             }
-            DefenseBase firstMatch = _defenses.Find(d => d.Type == addition.Type);
+            DefenseBase? firstMatch = _defenses.Find(d => d.Type == addition.Type);
             if (firstMatch == null)
             {
                 return false;
@@ -49,6 +49,10 @@ namespace BlacksmithCore.Backend.JudgementLogic.Actor
         public List<IDefenseWork> Get()
         {
             return _defenses.ConvertAll(d => (IDefenseWork)d);
+        }
+        public List<(string name, int power)> GetView()
+        {
+            return _defenses.Select(d => (d.GetType().Name, d.Power)).ToList();
         }
     }
 }

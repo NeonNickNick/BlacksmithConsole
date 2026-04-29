@@ -209,7 +209,7 @@ namespace BlacksmithCore.AI.Strategies
                 tasks.Add(Task.Run(() =>
                 {
                     var localGame = _main.DeepCopy();
-                    return RunMCTS(localGame, 4000 / threadCount);
+                    return RunMCTS(localGame, 40 / threadCount);
                 }));
             }
 

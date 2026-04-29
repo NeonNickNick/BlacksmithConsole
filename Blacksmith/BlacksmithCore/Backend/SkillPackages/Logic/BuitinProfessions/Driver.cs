@@ -13,7 +13,7 @@ namespace BlacksmithCore.Backend.SkillPackages.Logic.BuitinProfessions
         {
             Pen pen = sf => sf
                 .WriteDefense(1, new RealReduction())
-                .WriteDefense((int)MathF.Min(5, sc.Self.Focus.Resource.QueryCommon(ResourceType.Instance.Time()) * 2), new RealReduction());
+                .WriteDefense((int)MathF.Min(5, sc.Self.Focus.Resource.Query(ResourceType.Instance.Time()) * 2), new RealReduction());
             return DSL.Create(sc.Self, pen);
         }
         private bool SpaceAttackCheck(ISkillContext sc)

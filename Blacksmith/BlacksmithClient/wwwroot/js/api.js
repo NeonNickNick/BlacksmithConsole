@@ -3,6 +3,9 @@ async function readJson(response) {
     if (!response.ok) {
         throw new Error(data?.message || `Request failed: ${response.status}`);
     }
+    if (data && data.snapshot) {
+        Types.validateSnapshot(data.snapshot);
+    }
     return data;
 }
 

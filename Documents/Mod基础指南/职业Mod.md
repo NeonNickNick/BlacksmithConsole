@@ -55,8 +55,8 @@ var body = sc.Self.Focus;
 - `body.Health.HP`
 - `body.Health.MHP`
 - `body.Resource.Check(...)`
-- `body.Resource.QueryCommon(...)`
-- `body.Resource.QueryGold(...)`
+- `body.Resource.Query(...)`（查询某种资源）
+- `body.Resource.QueryAll(...)`（查询某种资源的普通 + Gold 总和）
 - `body.Skill.AddPackage(...)`
 - `body.Skill.AddSkill(...)`
 - `body.Skill.RemoveSkill(...)`

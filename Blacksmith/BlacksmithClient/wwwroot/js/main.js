@@ -45,6 +45,7 @@ async function startOrRestartGame() {
         throw new Error(response.message || 'Unable to start game.');
     }
     renderSnapshot(response.snapshot, { autoFocusLatest: true });
+    updateBusyState();
 }
 
 startBtn?.addEventListener('click', () => withBusy(startOrRestartGame));
@@ -53,10 +54,8 @@ restartBtn?.addEventListener('click', () => withBusy(startOrRestartGame));
 strategy?.addEventListener('change', () => {
     const selectedOption = strategy.options[strategy.selectedIndex];
     State.selectedModeName = selectedOption ? selectedOption.textContent : 'Not started';
-    State.isManual = Number.parseInt(strategy.value, 10) === 1;
     const modeBadge = document.getElementById('modeBadge');
     if (modeBadge) modeBadge.textContent = State.selectedModeName;
-    updateEnemyInputVisibility();
 });
 
 declareBtn?.addEventListener('click', () => withBusy(async () => {
@@ -71,10 +70,12 @@ declareBtn?.addEventListener('click', () => withBusy(async () => {
 
     if (!response.ok) {
         renderSnapshot(response.snapshot, { autoFocusLatest: true });
+        updateBusyState();
         throw new Error(response.message || 'Turn declaration failed.');
     }
 
     renderSnapshot(response.snapshot, { autoFocusLatest: true });
+    updateBusyState();
 }));
 
 prevBtn?.addEventListener('click', () => {
@@ -110,7 +111,6 @@ heroPanel?.addEventListener('toggle', () => {
         if (strategy.options.length > 0) {
             strategy.selectedIndex = 0;
             State.selectedModeName = strategy.options[0].textContent;
-            State.isManual = Number.parseInt(strategy.value, 10) === 1;
         }
 
         const status = await loadStatus();
@@ -120,5 +120,6 @@ heroPanel?.addEventListener('toggle', () => {
             updateEnemyInputVisibility();
             renderTurn();
         }
+        updateBusyState();
     });
 })();

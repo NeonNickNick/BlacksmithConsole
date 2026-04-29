@@ -5,9 +5,9 @@ Blacksmith 是一个围绕《打铁》规则构建的可扩展对战框架。当
 ## 当前仓库结构
 
 - `Blacksmith/BlacksmithClient`
-  当前唯一宿主项目。负责启动 ASP.NET Core 本地站点、暴露 `/api/*` 接口，并托管 `wwwroot` 前端资源。
+  当前唯一宿主项目。负责启动 ASP.NET Core 本地站点、暴露 `/api/*` 接口、托管 `wwwroot` 前端资源，并包含 `WebGameSession` 会话门面。
 - `Blacksmith/BlacksmithCore`
-  游戏核心库。包含判定引擎、技能 DSL、职业包系统、AI 策略、插件加载器，以及 Web 快照模型。
+  游戏核心库。包含判定引擎、技能 DSL、职业包系统、AI 策略、插件加载器。领域对象通过 `GetView()` 方法向 Web 层输出只读快照数据。
 - `Blacksmith/ModExamples`
   示例 Mod 源码目录，展示“扩展枚举 + 新职业 + Common 修改器”的组合写法。
 - `Documents`
@@ -62,5 +62,6 @@ Blacksmith 是一个围绕《打铁》规则构建的可扩展对战框架。当
 
 - 插件加载入口在 `BlacksmithClient/Program.cs`，会先扫描运行目录中的 `.dll`，再注册扩展枚举和职业包。
 - 当前前后端不是分离的两个可执行项目，而是 `BlacksmithClient` 单独承载前端静态资源和后端 API。
-- `BlacksmithCore` 目标框架为 `net8.0`，`BlacksmithClient` 目标框架为 `net9.0`。
-- `Blacksmith/ModExamples` 目录已经并入当前解决方案；如果你把它当成自己的起点，建议优先参考文档中的“当前命名空间”写法，而不是直接照抄历史代码。
+- 所有项目目标框架均为 `net8.0`。
+- 前端快照由各领域对象的 `GetView()` 方法生成，`WebGameSession` 直接组装为 API 响应，不再通过独立的 `WebGameReader` 类。
+- `Blacksmith/ModExamples` 目录已经并入当前解决方案；如果你把它当成自己的起点，建议优先参考文档中的”当前命名空间”写法，而不是直接照抄历史代码。

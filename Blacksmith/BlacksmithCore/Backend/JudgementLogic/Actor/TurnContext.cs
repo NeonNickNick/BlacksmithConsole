@@ -70,5 +70,17 @@ namespace BlacksmithCore.Backend.JudgementLogic.Actor
             EffectResolutions.RemoveAll(d => effectiveResolutions.Contains(d));
             EffectResolutions.ForEach(d => d.DelayRounds--);
         }
+        public List<(string name, int delayRounds, int power)> GetFutureDefenseView()
+        {
+            return DefenseResolutions
+                .Select(d => (d.Defense.GetType().Name, d.DelayRounds, d.Defense.Power))
+                .ToList();
+        }
+        public List<(string name, int delayRounds, int power)> GetFutureAttackView()
+        {
+            return AttackResolutions
+                .Select(a => (a.Type.ToString(), a.DelayRounds, (int)a.Power))
+                .ToList();
+        }
     }
 }

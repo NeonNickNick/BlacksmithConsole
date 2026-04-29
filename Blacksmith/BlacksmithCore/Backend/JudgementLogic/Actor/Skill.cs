@@ -28,6 +28,16 @@ namespace BlacksmithCore.Backend.JudgementLogic.Actor
         {
             new(new Common())
         };
+        public List<string> GetView()
+        {
+            if(_packages.Count < 2)
+            {
+                return new();
+            }
+            var temp = _packages.Select(p => p.Name).ToList();
+            temp.RemoveAt(0);
+            return temp;
+        }
         public bool HaveProfession => _packages.Count > 1;
         public void AddPackage(ISkillPackage skillPacakge)
         {

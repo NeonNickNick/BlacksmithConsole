@@ -35,7 +35,7 @@
                     </summary>
                     <div class="hero-content">
                         <div class="hero-copy-block" id="heroCopyBlock">
-                            <p class="hero-copy">Choose a mode from the title deck, start or restart instantly, and inspect the battlefield through structured panels instead of console-style logs.</p>
+                            <p class="hero-copy">Choose a mode from the title deck, start or restart instantly, and inspect the battlefield through structured panels.</p>
                         </div>
 
                         <div class="hero-controls">
@@ -125,13 +125,21 @@
                         <summary>Available Skills</summary>
                         <div id="playerSkills" class="token-grid empty-state-box">No data yet.</div>
                     </details>
+                    <details class="actor-section collapsible">
+                        <summary>Future Attacks</summary>
+                        <div id="playerFutureAttacks" class="token-grid empty-state-box">No pending attacks.</div>
+                    </details>
+                    <details class="actor-section collapsible">
+                        <summary>Future Defenses</summary>
+                        <div id="playerFutureDefenses" class="token-grid empty-state-box">No pending defenses.</div>
+                    </details>
                 </article>
 
                 <article class="panel fighter-panel">
                     <div class="panel-heading compact">
                         <div>
                             <p class="eyebrow">Opponent</p>
-                            <h2 id="enemyName">Robert</h2>
+                            <h2 id="enemyName">Opponent</h2>
                         </div>
                         <strong id="eHP">HP --/--</strong>
                     </div>
@@ -150,6 +158,14 @@
                     <details class="actor-section collapsible" open>
                         <summary>Available Skills</summary>
                         <div id="enemySkills" class="token-grid empty-state-box">No data yet.</div>
+                    </details>
+                    <details class="actor-section collapsible">
+                        <summary>Future Attacks</summary>
+                        <div id="enemyFutureAttacks" class="token-grid empty-state-box">No pending attacks.</div>
+                    </details>
+                    <details class="actor-section collapsible">
+                        <summary>Future Defenses</summary>
+                        <div id="enemyFutureDefenses" class="token-grid empty-state-box">No pending defenses.</div>
                     </details>
                 </article>
             </section>
@@ -171,6 +187,7 @@
     </div>
 
     <script src="js/state.js"></script>
+    <script src="js/types.js"></script>
     <script src="js/api.js"></script>
     <script src="js/ui.js"></script>
     <script src="js/main.js"></script>

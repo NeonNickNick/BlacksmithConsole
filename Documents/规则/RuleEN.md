@@ -1,4 +1,4 @@
-# "Blacksmith" Core Rulebook v1.0
+# "Blacksmith" Core Rulebook v1.3
 
 > Note: this file is currently better treated as a mechanics overview. If you need the latest implementation details, profession behavior, or exact numeric values, prefer the code under `Blacksmith/BlacksmithCore`.
 
@@ -87,6 +87,8 @@ Skills that require no prerequisites.
 | Cannon | 4 Iron | Gains Cannon class traits + 3 DEF |
 | Driver | 3 Iron | Gains Driver class traits |
 | Warlock (Staff) | 1 Iron | Gains Warlock class traits |
+| Blood Sigil | 7 Iron | +4 HP, +4 Max HP, gains Blood Sigil class traits. Forbidden: "Pierce", "Drill", "Cut". |
+| Lancer | 3 Iron | Gains Lancer class traits |
 
 ### 3.3 Class-Exclusive Skill Libraries
 
@@ -122,3 +124,25 @@ Skills that require no prerequisites.
 | :--- | :--- | :--- |
 | Alchemy | 2 Iron | Unlocks "Touch of Midas" |
 | Touch of Midas | 1 Iron | Yields 5 gIron |
+
+#### D. Blood Sigil
+
+| Skill Name | Resource Cost | Output / Effect |
+| :--- | :--- | :--- |
+| Blood Blade | 4 HP | 6 ATK. 75% of damage dealt is converted to HP recovery (life steal). |
+| Bloodthirst | 2 HP | Next attack's damage increased by 50% (rounded up). |
+| Recovery | 0 | Restore 2 HP. Condition: no attack damage was taken this turn before resolution. |
+| Blood Shield | 1 HP | Gain DEF equal to 40% of current HP (rounded up). |
+| Fury | 1 HP | 5 ATK. Only usable when HP <= 5. 150% of damage dealt is converted to HP recovery. |
+
+#### E. Lancer
+**Class Trait - Marks System:** Skills that deal damage grant specific Marks, which are consumed on the next attack to add bonus effects.
+
+| Skill Name | Resource Cost | Output / Effect |
+| :--- | :--- | :--- |
+| Sky Strike | 1 Iron | 3 ATK + Interrupt. On hit, gain [Fire Mark]: next attack's first segment gains +2 damage. |
+| Dragon Fang | 1 Iron | 3 ATK + 3 DEF. On hit, gain [Ice Mark]: next attack grants +2 AMR. |
+| Tyrant Shatter | 1 Iron | 3 ATK + double armor piercing. On hit, gain [Light Mark]: next attack restores +2 HP. |
+| Flurry Thrust | 1 Iron | 2 ATK + 2 ATK + 1 ATK (three segments treated as same turn). On hit, gain [Dark Mark]: next attack inflicts 1 RATK for two turns (damage over time). |
+| Rising Dragon | 4 Iron | 10 MATK. |
+| Charge | 4 Iron | Increase next "Rising Dragon" by 4 MATK. Additional mechanics:<br>1. Cost reduction: next turn's "Rising Dragon" or continued "Charge" costs 0 Iron.<br>2. Auto counter: if hit by an attack this turn (Charge state checked outside shield), immediately trigger a 0-cost "Rising Dragon".<br>3. Limit: can chain Charge at most twice in a row. |

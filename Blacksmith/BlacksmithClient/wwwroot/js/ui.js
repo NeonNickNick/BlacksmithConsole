@@ -39,42 +39,59 @@ function renderActor(prefix, actor) {
     const profession = document.getElementById(prefix === 'player' ? 'playerProfession' : 'enemyProfession');
 
     if (!actor) {
-        if (name) name.textContent = prefix === 'player' ? 'You' : 'Robert';
+        if (name) name.textContent = prefix === 'player' ? 'You' : 'Opponent';
         if (profession) profession.textContent = 'None';
         if (hp) hp.textContent = 'HP --/--';
         setHealthBar(prefix === 'player' ? 'playerHealthFill' : 'enemyHealthFill', 0, 1);
         renderTokenGrid(`${prefix}Resources`, [], () => '', 'No data yet.');
         renderTokenGrid(`${prefix}Defenses`, [], () => '', 'No active defenses.');
         renderTokenGrid(`${prefix}Skills`, [], () => '', 'No data yet.');
+        renderTokenGrid(`${prefix}FutureAttacks`, [], () => '', 'No pending attacks.');
+        renderTokenGrid(`${prefix}FutureDefenses`, [], () => '', 'No pending defenses.');
         return;
     }
 
-    if (name) name.textContent = safeText(actor.name, prefix === 'player' ? 'You' : 'Robert');
-    if (profession) profession.textContent = safeText(actor.profession, 'None');
+    if (name) name.textContent = prefix === 'player' ? 'You' : 'Opponent';
+    if (profession) {
+        const profs = Array.isArray(actor.professions) ? actor.professions : [];
+        profession.textContent = profs.length > 0 ? profs.join(', ') : 'None';
+    }
     if (hp) hp.textContent = `HP ${actor.hp}/${actor.maxHP}`;
     setHealthBar(prefix === 'player' ? 'playerHealthFill' : 'enemyHealthFill', actor.hp, actor.maxHP);
 
     renderTokenGrid(
         `${prefix}Resources`,
-        actor.resources,
-        item => item.name === 'Iron'
-            ? `<div class="token"><strong>${item.name}</strong><div>Common ${item.common}</div><div>Gold ${item.gold}</div><div>Total ${item.total}</div></div>`
-            : `<div class="token"><strong>${item.name}</strong><div>Total ${item.total}</div></div>`,
+        actor.resources || [],
+        item => `<div class="token"><strong>${item.name}</strong><div>${item.quantity}</div></div>`,
         'No data yet.'
     );
 
     renderTokenGrid(
         `${prefix}Defenses`,
-        actor.defenses,
+        actor.defenses || [],
         item => `<div class="token"><strong>${item.name}</strong><div>Power ${item.power}</div></div>`,
         'No active defenses.'
     );
 
     renderTokenGrid(
         `${prefix}Skills`,
-        actor.availableSkills,
+        actor.availableSkills || [],
         item => `<div class="token"><strong>${item}</strong></div>`,
         'No data yet.'
+    );
+
+    renderTokenGrid(
+        `${prefix}FutureAttacks`,
+        actor.futureAttacks || [],
+        item => `<div class="token"><strong>${item.name}</strong><div>In ${item.delayRounds} turn(s)</div><div>Power ${item.power}</div></div>`,
+        'No pending attacks.'
+    );
+
+    renderTokenGrid(
+        `${prefix}FutureDefenses`,
+        actor.futureDefenses || [],
+        item => `<div class="token"><strong>${item.name}</strong><div>In ${item.delayRounds} turn(s)</div><div>Power ${item.power}</div></div>`,
+        'No pending defenses.'
     );
 }
 
@@ -86,13 +103,13 @@ function buildTurnSummary(turn) {
     return `
         <div class="summary-card">
             <h3>Player Action</h3>
-            <div class="summary-line">Skill: ${safeText(turn.player.skillName)}</div>
-            <div class="summary-line">Param: ${safeText(turn.player.param, 0)}</div>
+            <div class="summary-line">Skill: ${safeText(turn.playerSkill)}</div>
+            <div class="summary-line">Param: ${safeText(turn.playerParam, 0)}</div>
         </div>
         <div class="summary-card">
             <h3>Enemy Action</h3>
-            <div class="summary-line">Skill: ${safeText(turn.enemy.skillName)}</div>
-            <div class="summary-line">Param: ${safeText(turn.enemy.param, 0)}</div>
+            <div class="summary-line">Skill: ${safeText(turn.enemySkill)}</div>
+            <div class="summary-line">Param: ${safeText(turn.enemyParam, 0)}</div>
         </div>
     `;
 }
@@ -112,7 +129,7 @@ function renderHistory() {
                 <span>Turn ${turn.index}</span>
                 <span>${resultLabel(turn.result)}</span>
             </div>
-            <div>You: ${turn.player.skillName} ${turn.player.param} | Enemy: ${turn.enemy.skillName} ${turn.enemy.param}</div>
+            <div>You: ${turn.playerSkill} ${turn.playerParam} | Enemy: ${turn.enemySkill} ${turn.enemyParam}</div>
         </button>
     `).join('');
 
@@ -141,7 +158,7 @@ function renderTurn() {
     if (turnCounterPill) turnCounterPill.textContent = turn ? `Turn ${turn.index}` : `Turn ${State.turns.length}`;
     if (actionText) {
         actionText.textContent = turn
-            ? `You used ${turn.player.skillName} ${turn.player.param}. Enemy used ${turn.enemy.skillName} ${turn.enemy.param}.`
+            ? `You used ${turn.playerSkill} ${turn.playerParam}. Enemy used ${turn.enemySkill} ${turn.enemyParam}.`
             : (State.gameStarted ? 'Battle initialized. Declare the first turn.' : 'No actions recorded yet.');
     }
     if (turnSummary) turnSummary.innerHTML = buildTurnSummary(turn);
@@ -209,8 +226,10 @@ function updateBusyState() {
     const declareBtn = document.getElementById('declareBtn');
     const connectionState = document.getElementById('connectionState');
 
+    const isGameOver = State.lastResult === 'Victory' || State.lastResult === 'Defeat' || State.lastResult === 'Draw';
+
     if (startBtn) startBtn.disabled = State.busy;
     if (restartBtn) restartBtn.disabled = State.busy || !State.gameStarted;
-    if (declareBtn) declareBtn.disabled = State.busy || !State.gameStarted;
+    if (declareBtn) declareBtn.disabled = State.busy || !State.gameStarted || isGameOver;
     if (connectionState) connectionState.textContent = State.busy ? 'Working' : 'Ready';
 }

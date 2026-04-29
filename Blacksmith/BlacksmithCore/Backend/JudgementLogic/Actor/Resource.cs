@@ -116,13 +116,16 @@ namespace BlacksmithCore.Backend.JudgementLogic.Actor
         {
             _resources[type].Gain(type, need);
         }
-        public float QueryCommon(ResourceType.BEValue type)
+        public float Query(ResourceType.BEValue type)
         {
-            return _resources[type].Common;
-        }
-        public float QueryGold(ResourceType.BEValue type)
-        {
-            return _resources[type].Gold;
+            if (type == _resources[type].CommonType)
+            {
+                return _resources[type].Common;
+            }
+            else
+            {
+                return _resources[type].Gold;
+            }
         }
         public float QueryAll(ResourceType.BEValue type)
         {
@@ -137,9 +140,21 @@ namespace BlacksmithCore.Backend.JudgementLogic.Actor
                     name == ResourceType.Instance.Gold_Iron() ||
                     name == ResourceType.Instance.Space() ||
                     name == ResourceType.Instance.Space())
+                {
+                    continue;
+                }
                 res +=  _resources[type].Gold + _resources[type].Common;
             }
             return res;
+        }
+        public List<(string name, float quantity)> GetView()
+        {
+            List<(string name, float quantity)> view = new();
+            foreach(var key in _resources.Keys)
+            {
+                view.Add((key.ToString(), Query(key)));
+            }
+            return view;
         }
     }
 }

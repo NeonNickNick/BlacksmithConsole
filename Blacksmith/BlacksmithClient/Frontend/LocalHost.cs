@@ -1,5 +1,4 @@
 using BlacksmithCore.AI;
-using BlacksmithCore.FrontendBackendInterface.Web;
 
 namespace BlacksmithClient.Frontend
 {

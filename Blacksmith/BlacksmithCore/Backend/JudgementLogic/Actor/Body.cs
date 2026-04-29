@@ -26,5 +26,27 @@ namespace BlacksmithCore.Backend.JudgementLogic.Actor
         {
             Effect.Execute(type, this);
         }
+        public BodyView GetView()
+        {
+            return new() {
+                ProfessionNames = Skill.GetView(),
+                HP = Health.HP,
+                MHP = Health.MHP,
+                DefenseView = Defense.GetView(),
+                ResourcesView = Resource.GetView(),
+                FutureAttackView = TurnContext.GetFutureAttackView(),
+                FutureDefenseView = TurnContext.GetFutureDefenseView()
+            };
+        }
+    }
+    public class BodyView
+    {
+        public required List<string> ProfessionNames { get; set; }
+        public required int HP { get; set; }
+        public required int MHP { get; set; }
+        public required List<(string name, int power)> DefenseView { get; set; }
+        public required List<(string name, float quantity)> ResourcesView { get; set; }
+        public required List<(string name, int delayRounds, int power)> FutureAttackView { get; set; }
+        public required List<(string name, int delayRounds, int power)> FutureDefenseView { get; set; }
     }
 }

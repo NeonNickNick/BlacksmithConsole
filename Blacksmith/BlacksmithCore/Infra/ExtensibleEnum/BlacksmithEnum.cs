@@ -101,23 +101,5 @@ namespace BlacksmithCore.Infra.ExtensibleEnum
         private static Dictionary<string, BEValue> _enumDict = new();
         public static BEValue GetBEValue([CallerMemberName] string name = "") => _enumDict[name];
     }
-    public class TestType : BlacksmithEnum<TestType>
-    {
-        [IsBlacksmithEnumMember(256)]
-        public BEValue Physical() => GetBEValue();
-
-        [IsBlacksmithEnumMember(128)]
-        public BEValue Magical() => GetBEValue();
-
-        [IsBlacksmithEnumMember(0)]
-        public BEValue Real() => GetBEValue();
-    }
-    //模拟外部程序集
-    [IsBlacksmithEnumModifier]
-    public static class MyTestEnumExtension
-    {
-        [IsBlacksmithEnumMember(256)]
-        public static ResourceType.BEValue Magical(this ResourceType testType) => ResourceType.GetBEValue();
-    }
 
 }

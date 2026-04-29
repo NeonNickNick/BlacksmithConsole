@@ -16,6 +16,5 @@ namespace BlacksmithCore.Backend.JudgementLogic.Judgement
             Focus = new(this);
             ActorList = new() { Focus };
         }
-
     }
 }
