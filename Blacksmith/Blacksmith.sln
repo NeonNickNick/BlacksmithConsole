@@ -3,11 +3,13 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.0.31903.59
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BlacksmithCore", "BlacksmithCore\BlacksmithCore.csproj", "{2D79F59E-321B-4B37-8D8B-1B01D4DE05AA}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BlacksmithCore", "Blacksmith\BlacksmithCore\BlacksmithCore.csproj", "{2D79F59E-321B-4B37-8D8B-1B01D4DE05AA}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BlacksmithClient", "BlacksmithClient\BlacksmithClient.csproj", "{DCB711F1-4984-4E30-888E-F4B80765861E}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BlacksmithClient", "Blacksmith\BlacksmithClient\BlacksmithClient.csproj", "{DCB711F1-4984-4E30-888E-F4B80765861E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ModExamples", "ModExamples\ModExamples.csproj", "{9C5D1C70-7E08-4DA6-B9D5-9AEA4C0E8DAF}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ModExamples", "Blacksmith\ModExamples\ModExamples.csproj", "{9C5D1C70-7E08-4DA6-B9D5-9AEA4C0E8DAF}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ClapInfra", "ClapInfra\ClapInfra.csproj", "{52F4AD2E-765B-4694-9D82-7219089B1EBD}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -55,6 +57,18 @@ Global
 		{9C5D1C70-7E08-4DA6-B9D5-9AEA4C0E8DAF}.Release|x64.Build.0 = Release|Any CPU
 		{9C5D1C70-7E08-4DA6-B9D5-9AEA4C0E8DAF}.Release|x86.ActiveCfg = Release|Any CPU
 		{9C5D1C70-7E08-4DA6-B9D5-9AEA4C0E8DAF}.Release|x86.Build.0 = Release|Any CPU
+		{52F4AD2E-765B-4694-9D82-7219089B1EBD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{52F4AD2E-765B-4694-9D82-7219089B1EBD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{52F4AD2E-765B-4694-9D82-7219089B1EBD}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{52F4AD2E-765B-4694-9D82-7219089B1EBD}.Debug|x64.Build.0 = Debug|Any CPU
+		{52F4AD2E-765B-4694-9D82-7219089B1EBD}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{52F4AD2E-765B-4694-9D82-7219089B1EBD}.Debug|x86.Build.0 = Debug|Any CPU
+		{52F4AD2E-765B-4694-9D82-7219089B1EBD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{52F4AD2E-765B-4694-9D82-7219089B1EBD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{52F4AD2E-765B-4694-9D82-7219089B1EBD}.Release|x64.ActiveCfg = Release|Any CPU
+		{52F4AD2E-765B-4694-9D82-7219089B1EBD}.Release|x64.Build.0 = Release|Any CPU
+		{52F4AD2E-765B-4694-9D82-7219089B1EBD}.Release|x86.ActiveCfg = Release|Any CPU
+		{52F4AD2E-765B-4694-9D82-7219089B1EBD}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

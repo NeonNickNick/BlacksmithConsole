@@ -10,6 +10,7 @@
 *.suo
 *.userosscache
 *.sln.docstates
+CLAUDE.md
 
 # IDE folders
 .vs/

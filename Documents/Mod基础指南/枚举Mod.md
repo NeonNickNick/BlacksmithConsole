@@ -9,7 +9,7 @@
 
 ## 适用范围
 
-项目中的很多核心类型并没有直接使用 C# 原生 `enum`，而是使用 `BlacksmithEnum<T>` 来模拟可扩展枚举，例如：
+项目中的很多核心类型并没有直接使用 C# 原生 `enum`，而是使用继承自 `ClapInfra.ClapEnum.ClapEnum<T>` 的 `BlacksmithEnum<T>` 来模拟可扩展枚举，例如：
 
 - `ResourceType`
 - `AttackType`

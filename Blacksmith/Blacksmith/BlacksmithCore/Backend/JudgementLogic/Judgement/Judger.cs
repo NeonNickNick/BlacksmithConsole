@@ -1,0 +1,59 @@
+using BlacksmithCore.Backend.JudgementLogic.Judgement.Core;
+using BlacksmithCore.Backend.SkillPackages;
+
+namespace BlacksmithCore.Backend.JudgementLogic.Judgement
+{
+    using DSL = DSLforSkillLogic;
+    public class Judger
+    {
+        public ActorSet Player { get; private set; }
+        public ActorSet Enemy { get; private set; }
+        public JudgeRuleManager JudgeRuleManager { get; }
+
+        private List<Intent> _playerIntents = new();
+        private List<Intent> _enemyIntents = new();
+
+        private Action _onJudge;
+        public void Swap()
+        {
+            (Player, Enemy) = (Enemy, Player);
+        }
+        public Judger(ActorSet player, ActorSet enemy)
+        {
+            Player = player;
+            Enemy = enemy;
+            JudgeRuleManager = new();
+            _onJudge = () =>
+            {
+                TranslateIntentsToResolutions();
+                JudgeRuleManager.GetRule()(Player, Enemy);
+            };
+        }
+        private List<Intent> Compile(List<DSL.SourceFile> sourceFiles)
+        {
+            var passive = sourceFiles[0];
+            sourceFiles.RemoveAt(0);
+            var skillIntents = sourceFiles.Select(s => s.Compile(this)).ToList();
+            skillIntents.Insert(0, passive.Compile(this));
+            return skillIntents;
+        }
+        public void Judge(List<DSL.SourceFile> playerSfs, List<DSL.SourceFile> enemySfs)
+        {
+            _playerIntents = Compile(playerSfs);
+            _enemyIntents = Compile(enemySfs);
+            _onJudge();
+        }
+
+        public void TranslateIntentsToResolutions()
+        {
+            foreach (var temp in _playerIntents)
+            {
+                temp.Execute?.Invoke(Player);
+            }
+            foreach (var temp in _enemyIntents)
+            {
+                temp.Execute?.Invoke(Enemy);
+            }
+        }
+    }
+}

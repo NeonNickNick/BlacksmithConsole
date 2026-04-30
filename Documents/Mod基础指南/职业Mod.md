@@ -68,7 +68,7 @@ var body = sc.Self.Focus;
 
 ## 技能是如何被识别的
 
-职业包和修改包都继承自 `SkillPackageBase`。系统会通过反射自动收集：
+职业包和修改包都继承自 `SkillPackageBase`（其底层反射配对来自 `ClapInfra.ClapProfession.ClapSkillPackage`）。系统会通过反射自动收集：
 
 - 名为 `XxxCheck` 的私有实例方法，签名必须是 `bool (ISkillContext)`
 - 名为 `Xxx` 的私有实例方法，签名必须是 `DSL.SourceFile (ISkillContext)`
