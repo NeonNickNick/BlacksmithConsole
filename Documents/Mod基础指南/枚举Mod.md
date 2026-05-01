@@ -1,7 +1,7 @@
 # 枚举Mod
 [返回](./引言.md)
 
-本文档介绍如何扩展项目中的“可扩展枚举”系统，包括：
+本文档介绍如何扩展项目中的"可扩展枚举"系统，包括：
 
 - 新建一个可被继续扩展的枚举类型
 - 为现有枚举添加新成员
@@ -15,6 +15,7 @@
 - `AttackType`
 - `DefenseType`
 - `EffectType`
+- `EffectTargetType`
 - `DynamicJudgeRuleName`
 - `JudgeStage`
 
@@ -45,7 +46,7 @@ public enum Names
 
 ```csharp
 using BlacksmithCore.Infra.Attributes;
-using BlacksmithCore.Infra.ExtensibleEnum;
+using BlacksmithCore.Infra.Enum;
 
 public class Names : BlacksmithEnum<Names>
 {
@@ -65,7 +66,7 @@ public class Names : BlacksmithEnum<Names>
 - 返回类型必须是当前枚举自己的 `BEValue`。
 - 方法必须是 `public` 实例方法。
 - 方法不能带参数。
-- `[IsBlacksmithEnumMember(priority)]` 中的值是排序优先级，不是全局唯一值。
+- `[IsBlacksmithEnumMember(priority)]` 中的值决定排序优先级。值越小排在越前面。
 
 ## 比较与排序行为
 
@@ -110,7 +111,7 @@ public static class NamesExtension
 
 ## 资源类型的特殊规则
 
-如果你扩展的是 `ResourceType`，并且想引入一组“普通资源 / 金资源”配对资源，那么金资源命名必须使用：
+如果你扩展的是 `ResourceType`，并且想引入一组"普通资源 / 金资源"配对资源，那么金资源命名必须使用：
 
 ```text
 Gold_普通资源名

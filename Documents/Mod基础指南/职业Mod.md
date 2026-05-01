@@ -8,7 +8,7 @@
 - 添加新的主职业
 - 给内置职业添加或覆盖技能
 - 给 Mod 职业添加或覆盖技能
-- 通过修改 `Common` 职业，为玩家提供“获得新职业”的入口技能
+- 通过修改 `Common` 职业，为玩家提供"获得新职业"的入口技能
 
 如果你需要理解动态规则、阶段判定和 `Mutation`，请阅读 [Mod进阶指南](../Mod进阶指南/引言.md)。
 
@@ -30,41 +30,41 @@
 public interface ISkillContext
 {
     string SkillName { get; }
-    ActorSet Self { get; }
+    Community Self { get; }
     int Param { get; }
 }
 ```
 
 你最常用的是：
 
-- `sc.Self`：当前施放技能的一方
+- `sc.Self`：当前施放技能的一方（`Community` 类型）
 - `sc.Self.Focus`：当前施放者的主体 `Body`
 - `sc.Param`：技能参数
 
-### `ActorSet` 与 `Body`
+### `Community` 与 `Body`
 
-当前游戏主要使用 `ActorSet.Focus` 作为主角色。常见访问方式：
+当前游戏主要使用 `Community.Focus` 作为主角色。`Body` 继承自 `ClapBody`，通过组件模式管理各部分数据。常见访问方式：
 
 ```csharp
 var self = sc.Self;
 var body = sc.Self.Focus;
 ```
 
-常用信息包括：
+常用信息通过 `Get<T>()` 获取组件：
 
-- `body.Health.HP`
-- `body.Health.MHP`
-- `body.Resource.Check(...)`
-- `body.Resource.Query(...)`（查询某种资源）
-- `body.Resource.QueryAll(...)`（查询某种资源的普通 + Gold 总和）
-- `body.Skill.AddPackage(...)`
-- `body.Skill.AddSkill(...)`
-- `body.Skill.RemoveSkill(...)`
+- `body.Get<Health>().HP`：当前生命值
+- `body.Get<Health>().MHP`：最大生命值
+- `body.Get<Resource>().Check(...)`：检查资源是否足够
+- `body.Get<Resource>().Query(...)`：查询某种资源（仅 Common 部分）
+- `body.Get<Resource>().QueryAll(...)`：查询某种资源的 Common + Gold 总和
+- `body.Get<Skill>().AddPackage(...)`：添加技能包（转职）
+- `body.Get<Skill>().AddSkill(...)`：动态添加技能名
+- `body.Get<Skill>().RemoveSkill(...)`：动态移除技能名
 
 注意：
 
-- 生命值修改是通过 `body.Health.GainHP(...)` / `LoseHP(...)` 等完成的。
-- 不是 `Body.LoseHP(...)`，而是 `Body.Health.LoseHP(...)`。
+- 生命值修改是通过 `body.Get<Health>().GainHP(...)` / `LoseHP(...)` 等完成的。
+- 不是 `Body.LoseHP(...)`，而是通过 `Get<Health>()` 访问 Health 组件。
 
 ## 技能是如何被识别的
 
@@ -128,10 +128,12 @@ private DSL.SourceFile SomeSkill(ISkillContext sc)
 下面是一个最小主职业示例：
 
 ```csharp
-using BlacksmithCore.Backend.Backend.SkillPackages.Logic;
-using BlacksmithCore.Backend.JudgementLogic.Core;
-using BlacksmithCore.Backend.SkillPackages.Core;
-using BlacksmithCore.Backend.SkillPackages.Logic;
+using BlacksmithCore.Backend.SkillPackages;
+using BlacksmithCore.Backend.SkillPackages.BuitinProfessions;
+using BlacksmithCore.Infra.Models;
+using BlacksmithCore.Infra.Models.Components;
+using BlacksmithCore.Infra.Models.Core;
+using BlacksmithCore.Infra.Profession;
 
 namespace Example.Mod;
 
@@ -142,8 +144,8 @@ public class MyProfession : MainProfession
 {
     private bool JokeCheck(ISkillContext sc)
     {
-        return sc.Self.Focus.Health.HP > 5
-            && sc.Self.Focus.Resource.Check(ResourceType.Instance.Iron(), 1);
+        return sc.Self.Focus.Get<Health>().HP > 5
+            && sc.Self.Focus.Get<Resource>().Check(ResourceType.Instance.Iron(), 1);
     }
 
     private DSL.SourceFile Joke(ISkillContext sc)
@@ -152,8 +154,8 @@ public class MyProfession : MainProfession
             .UseResource(1, ResourceType.Instance.Iron())
             .WriteFree(source =>
             {
-                source.Focus.Health.LoseHP(1);
-                source.Focus.Health.LoseMHP(1);
+                source.Focus.Get<Health>().LoseHP(1);
+                source.Focus.Get<Health>().LoseMHP(1);
             })
             .WriteRecovery(1)
             .WriteAttack(3, AttackType.Instance.Physical())
@@ -171,17 +173,17 @@ public class MyProfession : MainProfession
 - 职业名默认就是类名 `MyProfession`
 - 被动技能可选，重写 `PassiveSkill(ISkillContext sc)` 即可
 
-## 示例二：让 `Common` 提供一个“转职技能”
+## 示例二：让 `Common` 提供一个"转职技能"
 
 如果你只写了 `MainProfession`，游戏并不会自动给玩家一个获得该职业的技能。常见做法是给 `Common` 写一个修改器：
 
 ```csharp
-using BlacksmithCore.Backend.Backend.SkillPackages.Logic;
-using BlacksmithCore.Backend.JudgementLogic.Core;
-using BlacksmithCore.Backend.SkillPackages.Core;
-using BlacksmithCore.Backend.SkillPackages.Logic;
-using BlacksmithCore.Backend.SkillPackages.Logic.BuitinProfessions;
+using BlacksmithCore.Backend.SkillPackages;
+using BlacksmithCore.Backend.SkillPackages.BuitinProfessions;
 using BlacksmithCore.Infra.Attributes;
+using BlacksmithCore.Infra.Models;
+using BlacksmithCore.Infra.Models.Core;
+using BlacksmithCore.Infra.Profession;
 
 namespace Example.Mod;
 
@@ -193,12 +195,12 @@ public class CommonModifier : ProfessionModifier
 {
     private bool MyProfessionCheck(ISkillContext sc)
     {
-        return sc.Self.Focus.Resource.Check(ResourceType.Instance.Iron(), 2);
+        return sc.Self.Focus.Get<Resource>().Check(ResourceType.Instance.Iron(), 2);
     }
 
     private DSL.SourceFile MyProfession(ISkillContext sc)
     {
-        sc.Self.Focus.Skill.AddPackage(new MyProfession());
+        sc.Self.Focus.Get<Skill>().AddPackage(new MyProfession());
 
         Pen pen = sf => sf
             .UseResource(2, ResourceType.Instance.Iron())
@@ -236,7 +238,7 @@ public class CommonModifier : ProfessionModifier
 ## 与当前代码对齐的注意事项
 
 1. `AttackType` 里法术攻击名是 `Magical()`，不是 `Magic()`。
-2. `Body` 上没有直接的 `LoseHP` / `GainHP`；应通过 `body.Health` 调用。
+2. `Body` 上没有直接的 `LoseHP` / `GainHP`；应通过 `body.Get<Health>()` 调用。
 3. 资源和攻击类型应使用 `Instance` 获取，例如 `ResourceType.Instance.Iron()`。
 4. 技能名最终会转成全小写，手动调用 `AddSkill/RemoveSkill` 时也要使用全小写技能名。
 5. `Common` 是一个真实职业包，修改 `Common` 是提供转职入口最常见的方式。

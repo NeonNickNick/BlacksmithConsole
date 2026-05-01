@@ -7,7 +7,7 @@
 SourceFile.LinkJudgeRuleDynamic(ruleKey, mutations)
 ```
 
-如果说普通 DSL 是“写这个技能本身做什么”，那么 `LinkJudgeRuleDynamic` 就是在说：
+如果说普通 DSL 是"写这个技能本身做什么"，那么 `LinkJudgeRuleDynamic` 就是在说：
 
 这个技能除了当前效果外，还要把一些动态规则挂到判定系统里。
 
@@ -28,7 +28,7 @@ judger.JudgeRuleManager.AddJudgeRule(_owner, pair.Key);
 
 也就是说完整过程是：
 
-- 技能书写阶段：先把“将来要注册什么规则”记下来
+- 技能书写阶段：先把"将来要注册什么规则"记下来
 - 编译阶段：把模板注册到池里
 - 同时按当前施法者专门化，并加入本回合判定链
 
@@ -66,7 +66,7 @@ new Mutation(
 
 字段含义：
 
-- `judgeRule`：该规则实际执行的内容
+- `judgeRule`：该规则实际执行的内容，签名为 `Action<Community, Community>`
 - `stage`：挂到哪个判定阶段
 - `ruleType`：是覆盖还是修饰
 - `modifierOrder`：在核心规则前还是后执行
@@ -77,10 +77,9 @@ new Mutation(
 
 在 `judgeRule` 中，你通常会操作：
 
-- `player.Focus.TurnContext`
-- `enemy.Focus.TurnContext`
-- `player.Focus.Health`
-- `enemy.Focus.Health`
+- `player.Focus.Get<TurnContext>().Get<AttackResolution>()` 等 Resolution 列表
+- `enemy.Focus.Get<TurnContext>().Get<EffectResolution>()` 等
+- `player.Focus.Get<Health>()` 等组件
 - 以及通过 DSL 再临时生成一个技能片段并执行
 
 例如：
@@ -89,7 +88,8 @@ new Mutation(
 new Mutation(
     (player, enemy) =>
     {
-        if (enemy.Focus.TurnContext.AttackResolutions.Find(a => a.DelayRounds == 0) == null)
+        if (enemy.Focus.Get<TurnContext>().Get<AttackResolution>()
+            .Find(a => a.DelayRounds == 0) == null)
         {
             return;
         }
@@ -112,7 +112,7 @@ new Mutation(
 
 ## 一个完整而实用的模式
 
-下面给出一个“下回合开始时检查状态，并在特定阶段触发反击”的结构模板：
+下面给出一个"下回合开始时检查状态，并在特定阶段触发反击"的结构模板：
 
 ```csharp
 .LinkJudgeRuleDynamic(
@@ -144,7 +144,7 @@ new Mutation(
 
 ## 为什么不是直接在技能里写死
 
-因为有些效果不是“当前技能一放就立刻结算完”，而是：
+因为有些效果不是"当前技能一放就立刻结算完"，而是：
 
 - 等到某个阶段才判断
 - 依赖对手这一回合有没有做某件事
@@ -157,7 +157,7 @@ new Mutation(
 
 如果你想快速理解真实项目里的高级写法，建议直接读：
 
-- `Blacksmith/BlacksmithCore/Backend/SkillPackages/Logic/BuitinProfessions/Lancer.cs`
+- `Blacksmith/BlacksmithCore/Backend/SkillPackages/BuitinProfessions/Lancer.cs`
 
 阅读顺序建议是：
 
